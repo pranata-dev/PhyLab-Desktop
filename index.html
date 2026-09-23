@@ -7,218 +7,690 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
+    /* ==========================================================================
+       1. RESET & VARIABEL TEMA (MUTED SCIENTIFIC & PROFESSIONAL PALETTE)
+       ========================================================================== */
     :root {
-      --bg-primary: #f8fafc;
+      --bg-app: #f8fafc;
       --bg-surface: #ffffff;
       --bg-sidebar: #0f172a;
+      --bg-sidebar-hover: #1e293b;
+      --bg-sidebar-active: #1e293b;
+      
+      --border-subtle: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --border-sidebar: #1e293b;
+
+      --text-main: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --text-sidebar: #94a3b8;
+      --text-sidebar-active: #f8fafc;
+
       --accent-primary: #2563eb;
       --accent-hover: #1d4ed8;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --border-color: #cbd5e1;
-      --border-light: #e2e8f0;
-      --danger-color: #dc2626;
-      --success-color: #059669;
-      --warning-color: #d97706;
-      --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+      --accent-light: #eff6ff;
+
+      --status-connected: #059669;
+      --status-connected-bg: #ecfdf5;
+      --status-connected-border: #a7f3d0;
+      
+      --status-recording: #dc2626;
+      --status-paused: #d97706;
+
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+      --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    body { background-color: var(--bg-primary); color: var(--text-main); height: 100vh; overflow: hidden; }
-    .app-layout { display: flex; height: 100vh; }
-
-    /* Sidebar Navigation */
-    .sidebar { width: 280px; background-color: var(--bg-sidebar); color: #ffffff; padding: 24px 16px; display: flex; flex-direction: column; border-right: 1px solid var(--border-color); }
-    .sidebar-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; padding: 0 8px; }
-    .sidebar-brand h2 { font-size: 1.25rem; font-weight: 700; color: #ffffff; letter-spacing: -0.3px; }
-    .sidebar-brand span { font-size: 0.75rem; background: var(--accent-primary); color: white; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
-    
-    .module-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
-    .module-item { padding: 12px 14px; border-radius: 6px; cursor: pointer; background-color: transparent; font-size: 0.88rem; color: #94a3b8; transition: all 0.15s ease; font-weight: 500; }
-    .module-item:hover { background-color: #1e293b; color: #ffffff; }
-    .module-item.active { background-color: var(--accent-primary); color: #ffffff; font-weight: 600; }
-
-    /* Main Container */
-    .main-content { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
-    
-    /* Header Card */
-    .header-card { 
-      background: var(--bg-surface); 
-      padding: 16px 20px; 
-      border-radius: 8px; 
-      border: 1px solid var(--border-light); 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      box-shadow: var(--card-shadow); 
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
 
-    /* Tab Switcher Bar */
-    .tab-bar { display: flex; gap: 8px; border-bottom: 2px solid var(--border-light); padding-bottom: 2px; }
-    .tab-btn { 
-      padding: 8px 16px; 
-      border: none; 
-      background: transparent; 
-      font-weight: 600; 
-      font-size: 0.9rem; 
-      color: var(--text-muted); 
-      cursor: pointer; 
-      border-bottom: 3px solid transparent; 
-      transition: all 0.15s ease; 
+    body {
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
     }
-    .tab-btn.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
-    .tab-btn:hover:not(.active) { color: var(--text-main); }
 
-    /* Action Bar */
-    .action-bar-card { 
-      background: var(--bg-surface); 
-      padding: 14px 20px; 
-      border-radius: 8px; 
-      border: 1px solid var(--border-light); 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      box-shadow: var(--card-shadow); 
+    .app-layout {
+      display: flex;
+      height: 100vh;
     }
-    .action-buttons { display: flex; gap: 10px; }
-    .recording-status { font-size: 0.88rem; font-weight: 600; color: var(--text-muted); }
 
-    /* Buttons */
-    .btn { 
-      padding: 8px 16px; 
-      border: 1px solid transparent; 
-      border-radius: 6px; 
-      font-weight: 600; 
-      font-size: 0.85rem; 
-      cursor: pointer; 
-      transition: all 0.15s ease; 
-      display: inline-flex; 
-      align-items: center; 
-      gap: 6px; 
+    /* ==========================================================================
+       2. SIDEBAR KIRI (NAVIGASI PROFESIONAL)
+       ========================================================================== */
+    .sidebar {
+      width: 270px;
+      min-width: 270px;
+      background-color: var(--bg-sidebar);
+      color: #ffffff;
+      padding: 20px 14px;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border-sidebar);
     }
-    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-primary { background: var(--accent-primary); color: white; }
-    .btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
-    .btn-success { background: var(--success-color); color: white; }
-    .btn-warning { background: var(--warning-color); color: white; }
-    .btn-danger { background: var(--danger-color); color: white; }
-    .btn-secondary { background: #ffffff; color: var(--text-main); border-color: var(--border-color); }
-    .btn-secondary:hover:not(:disabled) { background: #f1f5f9; }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding: 0 8px 16px 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .sidebar-brand h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #f8fafc;
+      letter-spacing: -0.2px;
+    }
+
+    .sidebar-brand .brand-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #94a3b8;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 3px 7px;
+      border-radius: 4px;
+      letter-spacing: 0.8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      text-transform: uppercase;
+    }
+
+    .sidebar-section-title {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 0 8px 10px 8px;
+    }
+
+    .module-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .module-item {
+      padding: 10px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.84rem;
+      color: var(--text-sidebar);
+      transition: all 0.15s ease;
+      font-weight: 500;
+      line-height: 1.35;
+      border-left: 3px solid transparent;
+    }
+
+    .module-item:hover {
+      background-color: var(--bg-sidebar-hover);
+      color: #f1f5f9;
+    }
+
+    .module-item.active {
+      background-color: var(--bg-sidebar-active);
+      color: var(--text-sidebar-active);
+      font-weight: 600;
+      border-left-color: var(--accent-primary);
+    }
+
+    /* ==========================================================================
+       3. AREA KONTEN UTAMA & HEADER KANAN
+       ========================================================================== */
+    .main-content {
+      flex: 1;
+      padding: 20px 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .header-card {
+      background: var(--bg-surface);
+      padding: 16px 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .header-titles h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.2px;
+    }
+
+    .header-titles p {
+      color: var(--text-secondary);
+      font-size: 0.82rem;
+      margin-top: 2px;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
     /* Status Badge */
-    .status-badge { padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; background: #f1f5f9; color: var(--text-muted); border: 1px solid var(--border-color); }
-    .status-badge.connected { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
-
-    /* Metrics Grid */
-    .metrics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-    .metric-card { 
-      background: var(--bg-surface); 
-      padding: 18px 20px; 
-      border-radius: 8px; 
-      border: 1px solid var(--border-light); 
-      box-shadow: var(--card-shadow); 
-      border-left: 4px solid var(--accent-primary);
-    }
-    .metric-card .title { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-    .metric-card .value { font-size: 2.2rem; font-weight: 700; color: var(--text-main); font-variant-numeric: tabular-nums; }
-    .metric-card .unit { font-size: 1rem; color: var(--text-muted); font-weight: 500; margin-left: 4px; }
-
-    /* Chart Container */
-    .chart-container { 
-      background: var(--bg-surface); 
-      padding: 20px; 
-      border-radius: 8px; 
-      border: 1px solid var(--border-light); 
-      flex: 1; 
-      min-height: 300px; 
-      box-shadow: var(--card-shadow); 
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: #f1f5f9;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
     }
 
-    /* Theory Module Section */
-    .theory-container { 
-      background: var(--bg-surface); 
-      padding: 28px; 
-      border-radius: 8px; 
-      border: 1px solid var(--border-light); 
-      box-shadow: var(--card-shadow); 
-      line-height: 1.6; 
+    .status-badge.connected {
+      background: var(--status-connected-bg);
+      color: var(--status-connected);
+      border-color: var(--status-connected-border);
     }
-    .theory-section { margin-bottom: 24px; }
-    .theory-section h3 { font-size: 1.05rem; color: var(--accent-primary); margin-bottom: 8px; font-weight: 700; border-bottom: 1px solid var(--border-light); padding-bottom: 4px; }
-    .theory-section p { font-size: 0.92rem; color: #334155; margin-bottom: 10px; }
-    .theory-section ul, .theory-section ol { padding-left: 20px; font-size: 0.92rem; color: #334155; }
-    .theory-section li { margin-bottom: 6px; }
-    .formula-box { background: #f1f5f9; padding: 12px 16px; border-radius: 6px; border-left: 4px solid var(--accent-primary); font-family: 'Courier New', Courier, monospace; font-weight: bold; margin: 12px 0; font-size: 1rem; }
 
-    /* Modal Dialog */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.4); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-    .modal-overlay.hidden { display: none; }
-    .modal-content { background: #ffffff; border: 1px solid var(--border-color); padding: 24px; border-radius: 8px; width: 420px; max-width: 90%; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
-    .modal-content h3 { color: var(--text-main); margin-bottom: 4px; font-size: 1.1rem; }
-    .modal-content p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px; }
-    .device-list { list-style: none; max-height: 200px; overflow-y: auto; margin-bottom: 16px; border: 1px solid var(--border-color); border-radius: 6px; }
-    .device-item { padding: 10px 14px; border-bottom: 1px solid var(--border-light); cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem; color: var(--text-main); }
-    .device-item:hover { background-color: #f8fafc; }
-    .device-item:last-child { border-bottom: none; }
-    .modal-actions { display: flex; justify-content: flex-end; }
-    
-    .hidden-view { display: none !important; }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: var(--text-muted);
+      display: inline-block;
+    }
+
+    .status-dot.connected {
+      background-color: var(--status-connected);
+    }
+
+    .status-dot.recording {
+      background-color: var(--status-recording);
+      animation: pulse-dot 1.5s infinite;
+    }
+
+    .status-dot.paused {
+      background-color: var(--status-paused);
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    /* ==========================================================================
+       4. TAB KONTROL NAVIGASI
+       ========================================================================== */
+    .tab-bar {
+      display: flex;
+      gap: 6px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 0px;
+    }
+
+    .tab-btn {
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      font-weight: 600;
+      font-size: 0.86rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-btn:hover:not(.active) {
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      color: var(--accent-primary);
+      border-bottom-color: var(--accent-primary);
+    }
+
+    /* ==========================================================================
+       5. BILAH ALAT (TOOLBAR) DASHBOARD TERINTEGRASI
+       ========================================================================== */
+    .action-bar-card {
+      background: var(--bg-surface);
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .action-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toolbar-divider {
+      width: 1px;
+      height: 20px;
+      background-color: var(--border-subtle);
+      margin: 0 4px;
+    }
+
+    .recording-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    /* Tombol Bersih & Profesional */
+    .btn {
+      padding: 7px 13px;
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: #ffffff;
+      color: var(--text-main);
+    }
+
+    .btn svg {
+      flex-shrink: 0;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: #f8fafc;
+      border-color: #94a3b8;
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      border-color: var(--border-subtle);
+      background: #f8fafc;
+      color: var(--text-muted);
+    }
+
+    .btn-primary {
+      background: var(--accent-primary);
+      border-color: var(--accent-primary);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+
+    .btn-action-primary {
+      background: #0f172a;
+      border-color: #0f172a;
+      color: #ffffff;
+    }
+
+    .btn-action-primary:hover:not(:disabled) {
+      background: #1e293b;
+      border-color: #1e293b;
+    }
+
+    /* ==========================================================================
+       6. KARTU DATA & METRIK REAL-TIME
+       ========================================================================== */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .metric-card {
+      background: var(--bg-surface);
+      padding: 16px 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .metric-card .title {
+      font-size: 0.74rem;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .metric-card .value {
+      font-size: 1.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+      font-variant-numeric: tabular-nums;
+      display: flex;
+      align-items: baseline;
+    }
+
+    .metric-card .unit {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-left: 6px;
+    }
+
+    /* ==========================================================================
+       7. KONTAINER GRAFIK REAL-TIME
+       ========================================================================== */
+    .chart-container {
+      background: var(--bg-surface);
+      padding: 18px 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      flex: 1;
+      min-height: 300px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .chart-header h3 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .chart-header span {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .chart-canvas-wrapper {
+      flex: 1;
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ==========================================================================
+       8. MODUL TEORI & PANDUAN KERJA
+       ========================================================================== */
+    .theory-container {
+      background: var(--bg-surface);
+      padding: 24px 28px;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-sm);
+      line-height: 1.6;
+    }
+
+    .theory-section {
+      margin-bottom: 22px;
+    }
+
+    .theory-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .theory-section h3 {
+      font-size: 0.95rem;
+      color: var(--text-main);
+      margin-bottom: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .theory-section p {
+      font-size: 0.88rem;
+      color: #334155;
+      margin-bottom: 10px;
+    }
+
+    .theory-section ul, 
+    .theory-section ol {
+      padding-left: 20px;
+      font-size: 0.88rem;
+      color: #334155;
+    }
+
+    .theory-section li {
+      margin-bottom: 7px;
+      border: none !important; /* Hapus garis pemisah antar list item */
+    }
+
+    .formula-box {
+      background: #f8fafc;
+      padding: 10px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      border-left: 3px solid var(--accent-primary);
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      font-weight: 600;
+      margin: 10px 0;
+      font-size: 0.9rem;
+      color: #0f172a;
+      display: inline-block;
+    }
+
+    /* ==========================================================================
+       9. MODAL POP-UP BLUETOOTH
+       ========================================================================== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(2px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-overlay.hidden {
+      display: none;
+    }
+
+    .modal-content {
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      padding: 22px;
+      border-radius: 8px;
+      width: 420px;
+      max-width: 90%;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+    }
+
+    .modal-content h3 {
+      color: var(--text-main);
+      margin-bottom: 4px;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .modal-content p {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+    }
+
+    .device-list {
+      list-style: none;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 16px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+    }
+
+    .device-item {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      transition: background 0.12s ease;
+    }
+
+    .device-item:hover {
+      background-color: #f8fafc;
+    }
+
+    .device-item:last-child {
+      border-bottom: none;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .hidden-view {
+      display: none !important;
+    }
   </style>
 </head>
 <body>
   <div class="app-layout">
+    <!-- SIDEBAR KIRI -->
     <aside class="sidebar">
       <div class="sidebar-brand">
         <h2>PhyLab Pro</h2>
-        <span>LAB</span>
+        <span class="brand-badge">LAB</span>
       </div>
+      <div class="sidebar-section-title">Modul Praktikum</div>
       <ul class="module-list" id="module-list-container"></ul>
     </aside>
 
+    <!-- AREA UTAMA -->
     <main class="main-content">
-      <!-- Header Module Card -->
+      <!-- HEADER KANAN -->
       <section class="header-card">
-        <div>
-          <h1 id="active-module-title" style="font-size: 1.25rem; font-weight: 700;">Memuat Modul...</h1>
-          <p id="active-module-subtitle" style="color: var(--text-muted); font-size: 0.85rem; margin-top: 2px;"></p>
+        <div class="header-titles">
+          <h1 id="active-module-title">Memuat Modul...</h1>
+          <p id="active-module-subtitle"></p>
         </div>
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <span id="bluetooth-status" class="status-badge">Bluetooth Terputus</span>
-          <button id="btn-connect-bt" class="btn btn-primary">Hubungkan Sensor</button>
+        <div class="header-controls">
+          <span id="bluetooth-status" class="status-badge">
+            <span class="status-dot"></span> Terputus
+          </span>
+          <button id="btn-connect-bt" class="btn btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m7 7 10 10-5 5V2l5 5L7 17"/>
+            </svg>
+            Hubungkan Sensor
+          </button>
         </div>
       </section>
 
-      <!-- Navigation Tabs -->
+      <!-- TAB NAVIGASI -->
       <nav class="tab-bar">
-        <button class="tab-btn active" id="tab-dashboard" onclick="switchTab('dashboard')">📊 Dashboard Pengukuran</button>
-        <button class="tab-btn" id="tab-theory" onclick="switchTab('theory')">📖 Modul Teori & Panduan</button>
+        <button class="tab-btn active" id="tab-dashboard" onclick="switchTab('dashboard')">
+          Dashboard Pengukuran
+        </button>
+        <button class="tab-btn" id="tab-theory" onclick="switchTab('theory')">
+          Modul Teori & Panduan
+        </button>
       </nav>
 
       <!-- VIEW 1: DASHBOARD PENGUKURAN REAL-TIME -->
-      <div id="view-dashboard" style="display: flex; flex-direction: column; gap: 16px; flex: 1;">
+      <div id="view-dashboard" style="display: flex; flex-direction: column; gap: 14px; flex: 1;">
+        <!-- TOOLBAR KONTROL -->
         <section class="action-bar-card">
-          <div class="action-buttons">
-            <button id="btn-start" class="btn btn-success" disabled>▶ Start Record</button>
-            <button id="btn-stop" class="btn btn-warning" disabled>⏸ Stop Record</button>
-            <button id="btn-reset" class="btn btn-danger">🔄 Reset Data</button>
-            <button id="btn-download" class="btn btn-secondary">📥 Download CSV</button>
+          <div class="action-toolbar">
+            <button id="btn-start" class="btn btn-action-primary" disabled>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+              Start Record
+            </button>
+            <button id="btn-stop" class="btn" disabled>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="6" width="12" height="12" rx="1.5"/>
+              </svg>
+              Stop Record
+            </button>
+            <span class="toolbar-divider"></span>
+            <button id="btn-reset" class="btn">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                <path d="M3 3v5h5"/>
+              </svg>
+              Reset Data
+            </button>
+            <button id="btn-download" class="btn">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Download CSV
+            </button>
           </div>
-          <div id="recording-indicator" class="recording-status">Status: Standby</div>
+          <div id="recording-indicator" class="recording-status">
+            <span class="status-dot"></span> Status: Standby
+          </div>
         </section>
 
+        <!-- KARTU DATA METRIK -->
         <section class="metrics-grid">
           <div class="metric-card">
             <div class="title">Jarak Terukur (d)</div>
-            <div class="value" id="val-distance">-- <span class="unit">cm</span></div>
+            <div class="value" id="val-distance">— <span class="unit">cm</span></div>
           </div>
           <div class="metric-card">
             <div class="title">Waktu Tempuh (t)</div>
-            <div class="value" id="val-time">-- <span class="unit">µs</span></div>
+            <div class="value" id="val-time">— <span class="unit">µs</span></div>
           </div>
         </section>
 
+        <!-- PANEL GRAFIK LIVE -->
         <section class="chart-container">
-          <canvas id="realtimeChart"></canvas>
+          <div class="chart-header">
+            <h3>Respons Gelombang Ultrasonik</h3>
+            <span>Jendela data geser (30 sampel terakhir)</span>
+          </div>
+          <div class="chart-canvas-wrapper">
+            <canvas id="realtimeChart"></canvas>
+          </div>
         </section>
       </div>
 
@@ -231,6 +703,7 @@
     </main>
   </div>
 
+  <!-- MODAL PEMILIHAN PERANGKAT BLUETOOTH -->
   <div id="bt-modal" class="modal-overlay hidden">
     <div class="modal-content">
       <h3>Pilih Perangkat Sensor</h3>
@@ -239,7 +712,7 @@
         <li class="device-item" style="cursor:default;">Memindai perangkat...</li>
       </ul>
       <div class="modal-actions">
-        <button id="btn-cancel-bt" class="btn btn-danger">Batal</button>
+        <button id="btn-cancel-bt" class="btn">Batal</button>
       </div>
     </div>
   </div>
@@ -259,13 +732,14 @@
               <h3>A. Teori Dasar</h3>
               <p>Gelombang ultrasonik adalah gelombang akustik dengan frekuensi di atas batas pendengaran manusia (>20 kHz). Pada medium udara, gelombang merambat dengan kecepatan konstan yang dipengaruhi oleh suhu medium.</p>
               <p>Metode <i>Time of Flight (ToF)</i> mengukur selang waktu yang dibutuhkan pulsa ultrasonik untuk merambat dari pemancar (transmitter), memantul pada objek, dan kembali ke penerima (receiver).</p>
-              <div class="formula-box">
-                v = (2 × d) / t
+              <div>
+                <div class="formula-box">v = (2 × d) / t</div>
               </div>
-              <p>Di mana:<br>
-              • <b>v</b> = Kecepatan rambat gelombang (cm/µs atau m/s)<br>
-              • <b>d</b> = Jarak antara sensor dan objek (cm)<br>
-              • <b>t</b> = Waktu tempuh total bolak-balik (µs)
+              <p style="margin-top: 6px;">
+                Di mana:<br>
+                • <b>v</b> = Kecepatan rambat gelombang (cm/µs atau m/s)<br>
+                • <b>d</b> = Jarak antara sensor dan objek (cm)<br>
+                • <b>t</b> = Waktu tempuh total bolak-balik (µs)
               </p>
             </div>
 
@@ -283,7 +757,7 @@
               <ul>
                 <li>Node Sensor PhyLab ESP32 & Ultrasonik HC-SR04</li>
                 <li>Layar Pantul / Obstakel Datar</li>
-                <li>Mistar / Penggaris Presisi (sebagai pembanding)</li>
+                <li>Mistar / Penggaris Presisi (sebagai pembanding acuan)</li>
                 <li>Aplikasi Desktop PhyLab Pro</li>
               </ul>
             </div>
@@ -308,10 +782,12 @@
             <div class="theory-section">
               <h3>A. Teori Dasar</h3>
               <p>Ketika gelombang ultrasonik menumbuk batas antara dua medium berbeda, sebagian energi gelombang akan dipantulkan dan sebagian lagi diserap atau diteruskan. Besarnya intensitas gelombang yang dipantulkan bergantung pada perbandingan impedansi akustik kedua medium.</p>
-              <div class="formula-box">
-                Hukum Pemantulan: θ_datang = θ_pantul
+              <div>
+                <div class="formula-box">θ_datang = θ_pantul</div>
               </div>
-              <p>Bahan padat dan keras (seperti kayu atau logam) memiliki pemantulan akustik yang tinggi, sedangkan bahan berserat/poros (seperti kain atau busa) cenderung menyerap gelombang akustik.</p>
+              <p style="margin-top: 6px;">
+                Bahan padat dan keras (seperti kayu atau logam) memiliki pemantulan akustik yang tinggi, sedangkan bahan berserat/poros (seperti kain atau busa) cenderung menyerap gelombang akustik.
+              </p>
             </div>
 
             <div class="theory-section">
@@ -327,14 +803,14 @@
               <ul>
                 <li>Node Sensor PhyLab ESP32 & Ultrasonik HC-SR04</li>
                 <li>Sampel Bahan Pantul (Papan Kayu, Busa/Spons, Acrylic, Kain)</li>
-                <li>Busur Derajat (untuk variasi sudut)</li>
+                <li>Busur Derajat (untuk variasi sudut datang)</li>
               </ul>
             </div>
 
             <div class="theory-section">
               <h3>D. Langkah Kerja</h3>
               <ol>
-                <li>Posisikan sensor pada jarak tetap 20 cm dari dudukan sampel.</li>
+                <li>Posisikan sensor pada jarak tetap 20 cm dari dudukan sampel bahan.</li>
                 <li>Uji pemantulan menggunakan sampel bahan padat (kayu/acrylic) lalu amati kestabilan grafik.</li>
                 <li>Ganti sampel dengan bahan penyerap (busa/kain) pada jarak yang sama dan catat perbedaannya.</li>
                 <li>Miringkan sampel secara bertahap (0°, 15°, 30°, 45°) untuk mengamati efek refleksi spekular.</li>
@@ -412,11 +888,11 @@
             label: 'Jarak Terukur (cm)',
             data: [],
             borderColor: '#2563eb',
-            backgroundColor: 'rgba(37, 99, 235, 0.05)',
+            backgroundColor: 'rgba(37, 99, 235, 0.04)',
             fill: true,
-            tension: 0.2,
-            borderWidth: 2,
-            pointRadius: 2,
+            tension: 0.15,
+            borderWidth: 1.8,
+            pointRadius: 1.5,
             pointBackgroundColor: '#2563eb'
           }]
         },
@@ -426,16 +902,19 @@
           scales: {
             x: { 
               grid: { color: '#f1f5f9' },
-              ticks: { color: '#64748b', font: { size: 11 } }
+              ticks: { color: '#64748b', font: { size: 10 } }
             },
             y: { 
-              grid: { color: '#e2e8f0' },
-              ticks: { color: '#64748b', font: { size: 11 } },
+              grid: { color: '#f1f5f9' },
+              ticks: { color: '#64748b', font: { size: 10 } },
               beginAtZero: true 
             }
           },
           plugins: {
-            legend: { labels: { color: '#0f172a', font: { weight: '600' } } }
+            legend: { 
+              display: true,
+              labels: { color: '#334155', font: { size: 11, weight: '600' }, boxWidth: 12 } 
+            }
           }
         }
       });
@@ -444,7 +923,7 @@
     async function connectBluetoothNode() {
       const statusBadge = document.getElementById('bluetooth-status');
       try {
-        statusBadge.innerText = 'Mencari Node...';
+        statusBadge.innerHTML = '<span class="status-dot"></span> Mencari Node...';
 
         bluetoothDevice = await navigator.bluetooth.requestDevice({
           acceptAllDevices: true,
@@ -453,7 +932,7 @@
 
         bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
 
-        statusBadge.innerText = 'Menghubungkan...';
+        statusBadge.innerHTML = '<span class="status-dot"></span> Menghubungkan...';
         gattServer = await bluetoothDevice.gatt.connect();
 
         const service = await gattServer.getPrimaryService(SERVICE_UUID);
@@ -462,7 +941,7 @@
         await characteristic.startNotifications();
         characteristic.addEventListener('characteristicvaluechanged', handleSensorData);
 
-        statusBadge.innerText = `Terhubung: ${bluetoothDevice.name || 'Node 01'}`;
+        statusBadge.innerHTML = `<span class="status-dot connected"></span> ${bluetoothDevice.name || 'Node 01'}`;
         statusBadge.classList.add('connected');
         
         const btnConnect = document.getElementById('btn-connect-bt');
@@ -472,7 +951,7 @@
         document.getElementById('btn-start').disabled = false;
 
       } catch (error) {
-        statusBadge.innerText = 'Bluetooth Terputus';
+        statusBadge.innerHTML = '<span class="status-dot"></span> Terputus';
         statusBadge.classList.remove('connected');
         hideBluetoothModal();
       }
@@ -495,7 +974,7 @@
           li.className = 'device-item';
           li.innerHTML = `
             <span><strong>${device.deviceName || 'Perangkat Node'}</strong></span>
-            <span style="font-size: 0.75rem; color: #64748b;">${device.deviceId}</span>
+            <span style="font-size: 0.72rem; color: #64748b;">${device.deviceId}</span>
           `;
           li.onclick = () => {
             ipcRenderer.send('select-bluetooth-device-id', device.deviceId);
@@ -526,7 +1005,7 @@
       const statusBadge = document.getElementById('bluetooth-status');
       const btnConnect = document.getElementById('btn-connect-bt');
 
-      statusBadge.innerText = 'Bluetooth Terputus';
+      statusBadge.innerHTML = '<span class="status-dot"></span> Terputus';
       statusBadge.classList.remove('connected');
       btnConnect.innerText = 'Hubungkan Sensor';
       btnConnect.onclick = connectBluetoothNode;
@@ -575,7 +1054,7 @@
       document.getElementById('btn-start').disabled = true;
       document.getElementById('btn-stop').disabled = false;
       const statusEl = document.getElementById('recording-indicator');
-      statusEl.innerHTML = 'Status: <span style="color:#dc2626">🔴 Merekam Data...</span>';
+      statusEl.innerHTML = '<span class="status-dot recording"></span> Status: Merekam Data';
     }
 
     function stopRecording() {
@@ -583,7 +1062,7 @@
       document.getElementById('btn-start').disabled = false;
       document.getElementById('btn-stop').disabled = true;
       const statusEl = document.getElementById('recording-indicator');
-      statusEl.innerHTML = 'Status: <span style="color:#d97706">⏸ Dijeda</span>';
+      statusEl.innerHTML = '<span class="status-dot paused"></span> Status: Dijeda';
     }
 
     function resetData() {
@@ -592,10 +1071,10 @@
       chartInstance.data.labels = [];
       chartInstance.data.datasets[0].data = [];
       chartInstance.update();
-      document.getElementById('val-distance').innerHTML = `-- <span class="unit">cm</span>`;
-      document.getElementById('val-time').innerHTML = `-- <span class="unit">µs</span>`;
+      document.getElementById('val-distance').innerHTML = `— <span class="unit">cm</span>`;
+      document.getElementById('val-time').innerHTML = `— <span class="unit">µs</span>`;
       const statusEl = document.getElementById('recording-indicator');
-      statusEl.innerText = 'Status: Standby (Data Dibersihkan)';
+      statusEl.innerHTML = '<span class="status-dot"></span> Status: Standby';
     }
 
     function downloadCSV() {
