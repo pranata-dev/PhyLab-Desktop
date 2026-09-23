@@ -394,6 +394,63 @@ body {
   border-color: #1e293b;
 }
 
+/* DROPDOWN MENU EXPORT DATA */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  min-width: 170px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  gap: 2px;
+}
+
+.dropdown-menu.hidden {
+  display: none !important;
+}
+
+.dropdown-item {
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-main);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  transition: all 0.12s ease;
+  width: 100%;
+}
+
+.dropdown-item:hover {
+  background-color: #f1f5f9;
+  color: var(--accent-primary);
+}
+
+.dropdown-item svg {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.dropdown-item:hover svg {
+  color: var(--accent-primary);
+}
+
 /* ==========================================================================
    6. KARTU DATA & PENYEMPURNAAN TIPOGRAFI
    ========================================================================== */

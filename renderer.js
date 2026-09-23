@@ -158,6 +158,47 @@ function toggleSimulation() {
   }
 }
 
+// 6. Ekspor Data ke Format CSV
+function downloadCSV(data) {
+  const exportData = data || [];
+  if (exportData.length === 0) {
+    alert('Belum ada data direkam untuk diekspor!');
+    return;
+  }
+  let csvContent = "data:text/csv;charset=utf-8,Waktu,Jarak (cm),Time of Flight (us)\n";
+  exportData.forEach(row => {
+    csvContent += `${row.timestamp},${row.distance},${row.timeOfFlight}\n`;
+  });
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", `PhyLab_Data_${new Date().toISOString().slice(0,10)}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+// 7. Ekspor Data ke Format Excel (.xlsx) melalui IPC
+async function exportXLSX(data) {
+  const exportData = data || [];
+  if (exportData.length === 0) {
+    alert('Belum ada data direkam untuk diekspor!');
+    return;
+  }
+  try {
+    const { ipcRenderer } = require('electron');
+    const result = await ipcRenderer.invoke('export-xlsx', exportData);
+    if (result && result.success) {
+      alert(`Data berhasil diekspor ke file Excel:\n${result.filePath}`);
+    } else if (result && !result.canceled && result.error) {
+      alert(`Gagal mengekspor file Excel: ${result.error}`);
+    }
+  } catch (err) {
+    console.error('Error saat invoke export-xlsx:', err);
+    alert('Terjadi kesalahan saat memproses ekspor Excel.');
+  }
+}
+
 // Inisialisasi saat DOM siap
 window.addEventListener('DOMContentLoaded', () => {
   loadLabModules();
@@ -168,4 +209,18 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
   if (btnToggleSidebar) btnToggleSidebar.addEventListener('click', toggleSidebar);
+
+  // Dropdown Export Menu Event Listeners
+  const btnExportToggle = document.getElementById('btn-export-toggle');
+  const exportMenu = document.getElementById('export-menu');
+  if (btnExportToggle && exportMenu) {
+    btnExportToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      exportMenu.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', () => {
+      exportMenu.classList.add('hidden');
+    });
+  }
 });

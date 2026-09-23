@@ -168,7 +168,7 @@
 
     /* ==========================================================================
        3. AREA KONTEN UTAMA & HEADER KANAN
-       ========================================================================== */
+       ========================================================================= */
     .main-content {
       flex: 1;
       padding: 20px 24px;
@@ -176,7 +176,7 @@
       display: flex;
       flex-direction: column;
       gap: 16px;
-      min-width: 0; /* Mencegah overflow flexbox */
+      min-width: 0;
       transition: all 0.3s ease;
     }
 
@@ -321,7 +321,7 @@
     }
 
     /* ==========================================================================
-       5. BILAH ALAT (TOOLBAR) DASHBOARD TERINTEGRASI
+       5. BILAH ALAT (TOOLBAR) DASHBOARD & DROPDOWN EXPORT
        ========================================================================== */
     .action-bar-card {
       background: var(--bg-surface);
@@ -409,6 +409,63 @@
     .btn-action-primary:hover:not(:disabled) {
       background: #1e293b;
       border-color: #1e293b;
+    }
+
+    /* DROPDOWN MENU EXPORT DATA */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 5px);
+      right: 0;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+      min-width: 170px;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      padding: 4px;
+      gap: 2px;
+    }
+
+    .dropdown-menu.hidden {
+      display: none !important;
+    }
+
+    .dropdown-item {
+      background: transparent;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-align: left;
+      transition: all 0.12s ease;
+      width: 100%;
+    }
+
+    .dropdown-item:hover {
+      background-color: #f1f5f9;
+      color: var(--accent-primary);
+    }
+
+    .dropdown-item svg {
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .dropdown-item:hover svg {
+      color: var(--accent-primary);
     }
 
     /* ==========================================================================
@@ -701,7 +758,7 @@
 
       <!-- VIEW 1: DASHBOARD PENGUKURAN REAL-TIME -->
       <div id="view-dashboard" style="display: flex; flex-direction: column; gap: 14px; flex: 1;">
-        <!-- TOOLBAR KONTROL -->
+        <!-- TOOLBAR KONTROL DENGAN DROPDOWN EXPORT -->
         <section class="action-bar-card">
           <div class="action-toolbar">
             <button id="btn-start" class="btn btn-action-primary" disabled>
@@ -724,14 +781,42 @@
               </svg>
               Reset Data
             </button>
-            <button id="btn-download" class="btn">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              Download CSV
-            </button>
+
+            <!-- Tombol Dropdown Export Data (.CSV & .XLSX) -->
+            <div class="dropdown" id="export-dropdown">
+              <button id="btn-export-toggle" class="btn">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Export Data
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 2px;">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </button>
+              <div class="dropdown-menu hidden" id="export-menu">
+                <button class="dropdown-item" id="btn-export-csv">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="8" y1="13" x2="16" y2="13"/>
+                    <line x1="8" y1="17" x2="16" y2="17"/>
+                  </svg>
+                  Export as .CSV
+                </button>
+                <button class="dropdown-item" id="btn-export-xlsx">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <path d="M8 13l3 4m0-4l-3 4"/>
+                    <line x1="14" y1="13" x2="16" y2="13"/>
+                    <line x1="14" y1="17" x2="16" y2="17"/>
+                  </svg>
+                  Export as .XLSX
+                </button>
+              </div>
+            </div>
           </div>
           <div id="recording-indicator" class="recording-status">
             <span class="status-dot"></span> Status: Standby
@@ -1198,9 +1283,10 @@
       statusEl.innerHTML = '<span class="status-dot"></span> Status: Standby';
     }
 
+    // 1. Ekspor Data ke Format CSV
     function downloadCSV() {
       if (recordedData.length === 0) {
-        alert('Belum ada data direkam!');
+        alert('Belum ada data direkam untuk diekspor!');
         return;
       }
       let csvContent = "data:text/csv;charset=utf-8,Waktu,Jarak (cm),Time of Flight (us)\n";
@@ -1216,6 +1302,25 @@
       document.body.removeChild(link);
     }
 
+    // 2. Ekspor Data ke Format Excel (.xlsx) melalui IPC ke Main Process
+    async function exportXLSX() {
+      if (recordedData.length === 0) {
+        alert('Belum ada data direkam untuk diekspor!');
+        return;
+      }
+      try {
+        const result = await ipcRenderer.invoke('export-xlsx', recordedData);
+        if (result && result.success) {
+          alert(`Data berhasil diekspor ke file Excel:\n${result.filePath}`);
+        } else if (result && !result.canceled && result.error) {
+          alert(`Gagal mengekspor file Excel: ${result.error}`);
+        }
+      } catch (err) {
+        console.error('Error saat invoke export-xlsx:', err);
+        alert('Terjadi kesalahan saat memproses ekspor Excel.');
+      }
+    }
+
     window.onload = () => {
       loadModules();
       initChart();
@@ -1226,7 +1331,38 @@
       document.getElementById('btn-start').onclick = startRecording;
       document.getElementById('btn-stop').onclick = stopRecording;
       document.getElementById('btn-reset').onclick = resetData;
-      document.getElementById('btn-download').onclick = downloadCSV;
+
+      // Dropdown Export Menu Event Listeners
+      const btnExportToggle = document.getElementById('btn-export-toggle');
+      const exportMenu = document.getElementById('export-menu');
+      if (btnExportToggle && exportMenu) {
+        btnExportToggle.onclick = (e) => {
+          e.stopPropagation();
+          exportMenu.classList.toggle('hidden');
+        };
+
+        // Tutup dropdown jika klik di luar area menu
+        document.addEventListener('click', () => {
+          exportMenu.classList.add('hidden');
+        });
+      }
+
+      // Handler Opsi Export
+      const btnExportCSV = document.getElementById('btn-export-csv');
+      if (btnExportCSV) {
+        btnExportCSV.onclick = () => {
+          if (exportMenu) exportMenu.classList.add('hidden');
+          downloadCSV();
+        };
+      }
+
+      const btnExportXLSX = document.getElementById('btn-export-xlsx');
+      if (btnExportXLSX) {
+        btnExportXLSX.onclick = () => {
+          if (exportMenu) exportMenu.classList.add('hidden');
+          exportXLSX();
+        };
+      }
     };
   </script>
 </body>
