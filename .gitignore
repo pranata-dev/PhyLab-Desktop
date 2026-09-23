@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Production builds & packaging
+dist/
+out/
+build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment and system files
+.env
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

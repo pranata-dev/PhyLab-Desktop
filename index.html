@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhyLab Pro - Lab Fisika Ultrasonik</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --bg-primary: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-sidebar: #0f172a;
+      --accent-primary: #2563eb;
+      --accent-hover: #1d4ed8;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #cbd5e1;
+      --border-light: #e2e8f0;
+      --danger-color: #dc2626;
+      --success-color: #059669;
+      --warning-color: #d97706;
+      --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg-primary); color: var(--text-main); height: 100vh; overflow: hidden; }
+    .app-layout { display: flex; height: 100vh; }
+
+    /* Sidebar Navigation */
+    .sidebar { width: 280px; background-color: var(--bg-sidebar); color: #ffffff; padding: 24px 16px; display: flex; flex-direction: column; border-right: 1px solid var(--border-color); }
+    .sidebar-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; padding: 0 8px; }
+    .sidebar-brand h2 { font-size: 1.25rem; font-weight: 700; color: #ffffff; letter-spacing: -0.3px; }
+    .sidebar-brand span { font-size: 0.75rem; background: var(--accent-primary); color: white; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+    
+    .module-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .module-item { padding: 12px 14px; border-radius: 6px; cursor: pointer; background-color: transparent; font-size: 0.88rem; color: #94a3b8; transition: all 0.15s ease; font-weight: 500; }
+    .module-item:hover { background-color: #1e293b; color: #ffffff; }
+    .module-item.active { background-color: var(--accent-primary); color: #ffffff; font-weight: 600; }
+
+    /* Main Container */
+    .main-content { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+    
+    /* Header Card */
+    .header-card { 
+      background: var(--bg-surface); 
+      padding: 16px 20px; 
+      border-radius: 8px; 
+      border: 1px solid var(--border-light); 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      box-shadow: var(--card-shadow); 
+    }
+
+    /* Tab Switcher Bar */
+    .tab-bar { display: flex; gap: 8px; border-bottom: 2px solid var(--border-light); padding-bottom: 2px; }
+    .tab-btn { 
+      padding: 8px 16px; 
+      border: none; 
+      background: transparent; 
+      font-weight: 600; 
+      font-size: 0.9rem; 
+      color: var(--text-muted); 
+      cursor: pointer; 
+      border-bottom: 3px solid transparent; 
+      transition: all 0.15s ease; 
+    }
+    .tab-btn.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+    .tab-btn:hover:not(.active) { color: var(--text-main); }
+
+    /* Action Bar */
+    .action-bar-card { 
+      background: var(--bg-surface); 
+      padding: 14px 20px; 
+      border-radius: 8px; 
+      border: 1px solid var(--border-light); 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      box-shadow: var(--card-shadow); 
+    }
+    .action-buttons { display: flex; gap: 10px; }
+    .recording-status { font-size: 0.88rem; font-weight: 600; color: var(--text-muted); }
+
+    /* Buttons */
+    .btn { 
+      padding: 8px 16px; 
+      border: 1px solid transparent; 
+      border-radius: 6px; 
+      font-weight: 600; 
+      font-size: 0.85rem; 
+      cursor: pointer; 
+      transition: all 0.15s ease; 
+      display: inline-flex; 
+      align-items: center; 
+      gap: 6px; 
+    }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-primary { background: var(--accent-primary); color: white; }
+    .btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+    .btn-success { background: var(--success-color); color: white; }
+    .btn-warning { background: var(--warning-color); color: white; }
+    .btn-danger { background: var(--danger-color); color: white; }
+    .btn-secondary { background: #ffffff; color: var(--text-main); border-color: var(--border-color); }
+    .btn-secondary:hover:not(:disabled) { background: #f1f5f9; }
+
+    /* Status Badge */
+    .status-badge { padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; background: #f1f5f9; color: var(--text-muted); border: 1px solid var(--border-color); }
+    .status-badge.connected { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+
+    /* Metrics Grid */
+    .metrics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .metric-card { 
+      background: var(--bg-surface); 
+      padding: 18px 20px; 
+      border-radius: 8px; 
+      border: 1px solid var(--border-light); 
+      box-shadow: var(--card-shadow); 
+      border-left: 4px solid var(--accent-primary);
+    }
+    .metric-card .title { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .metric-card .value { font-size: 2.2rem; font-weight: 700; color: var(--text-main); font-variant-numeric: tabular-nums; }
+    .metric-card .unit { font-size: 1rem; color: var(--text-muted); font-weight: 500; margin-left: 4px; }
+
+    /* Chart Container */
+    .chart-container { 
+      background: var(--bg-surface); 
+      padding: 20px; 
+      border-radius: 8px; 
+      border: 1px solid var(--border-light); 
+      flex: 1; 
+      min-height: 300px; 
+      box-shadow: var(--card-shadow); 
+    }
+
+    /* Theory Module Section */
+    .theory-container { 
+      background: var(--bg-surface); 
+      padding: 28px; 
+      border-radius: 8px; 
+      border: 1px solid var(--border-light); 
+      box-shadow: var(--card-shadow); 
+      line-height: 1.6; 
+    }
+    .theory-section { margin-bottom: 24px; }
+    .theory-section h3 { font-size: 1.05rem; color: var(--accent-primary); margin-bottom: 8px; font-weight: 700; border-bottom: 1px solid var(--border-light); padding-bottom: 4px; }
+    .theory-section p { font-size: 0.92rem; color: #334155; margin-bottom: 10px; }
+    .theory-section ul, .theory-section ol { padding-left: 20px; font-size: 0.92rem; color: #334155; }
+    .theory-section li { margin-bottom: 6px; }
+    .formula-box { background: #f1f5f9; padding: 12px 16px; border-radius: 6px; border-left: 4px solid var(--accent-primary); font-family: 'Courier New', Courier, monospace; font-weight: bold; margin: 12px 0; font-size: 1rem; }
+
+    /* Modal Dialog */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.4); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+    .modal-overlay.hidden { display: none; }
+    .modal-content { background: #ffffff; border: 1px solid var(--border-color); padding: 24px; border-radius: 8px; width: 420px; max-width: 90%; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
+    .modal-content h3 { color: var(--text-main); margin-bottom: 4px; font-size: 1.1rem; }
+    .modal-content p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px; }
+    .device-list { list-style: none; max-height: 200px; overflow-y: auto; margin-bottom: 16px; border: 1px solid var(--border-color); border-radius: 6px; }
+    .device-item { padding: 10px 14px; border-bottom: 1px solid var(--border-light); cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem; color: var(--text-main); }
+    .device-item:hover { background-color: #f8fafc; }
+    .device-item:last-child { border-bottom: none; }
+    .modal-actions { display: flex; justify-content: flex-end; }
+    
+    .hidden-view { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <h2>PhyLab Pro</h2>
+        <span>LAB</span>
+      </div>
+      <ul class="module-list" id="module-list-container"></ul>
+    </aside>
+
+    <main class="main-content">
+      <!-- Header Module Card -->
+      <section class="header-card">
+        <div>
+          <h1 id="active-module-title" style="font-size: 1.25rem; font-weight: 700;">Memuat Modul...</h1>
+          <p id="active-module-subtitle" style="color: var(--text-muted); font-size: 0.85rem; margin-top: 2px;"></p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span id="bluetooth-status" class="status-badge">Bluetooth Terputus</span>
+          <button id="btn-connect-bt" class="btn btn-primary">Hubungkan Sensor</button>
+        </div>
+      </section>
+
+      <!-- Navigation Tabs -->
+      <nav class="tab-bar">
+        <button class="tab-btn active" id="tab-dashboard" onclick="switchTab('dashboard')">📊 Dashboard Pengukuran</button>
+        <button class="tab-btn" id="tab-theory" onclick="switchTab('theory')">📖 Modul Teori & Panduan</button>
+      </nav>
+
+      <!-- VIEW 1: DASHBOARD PENGUKURAN REAL-TIME -->
+      <div id="view-dashboard" style="display: flex; flex-direction: column; gap: 16px; flex: 1;">
+        <section class="action-bar-card">
+          <div class="action-buttons">
+            <button id="btn-start" class="btn btn-success" disabled>▶ Start Record</button>
+            <button id="btn-stop" class="btn btn-warning" disabled>⏸ Stop Record</button>
+            <button id="btn-reset" class="btn btn-danger">🔄 Reset Data</button>
+            <button id="btn-download" class="btn btn-secondary">📥 Download CSV</button>
+          </div>
+          <div id="recording-indicator" class="recording-status">Status: Standby</div>
+        </section>
+
+        <section class="metrics-grid">
+          <div class="metric-card">
+            <div class="title">Jarak Terukur (d)</div>
+            <div class="value" id="val-distance">-- <span class="unit">cm</span></div>
+          </div>
+          <div class="metric-card">
+            <div class="title">Waktu Tempuh (t)</div>
+            <div class="value" id="val-time">-- <span class="unit">µs</span></div>
+          </div>
+        </section>
+
+        <section class="chart-container">
+          <canvas id="realtimeChart"></canvas>
+        </section>
+      </div>
+
+      <!-- VIEW 2: MODUL TEORI DAN LANGKAH KERJA -->
+      <div id="view-theory" class="hidden-view">
+        <article class="theory-container" id="theory-content">
+          <!-- Konten Teori Diisi Dinamis Melalui JavaScript -->
+        </article>
+      </div>
+    </main>
+  </div>
+
+  <div id="bt-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h3>Pilih Perangkat Sensor</h3>
+      <p>Pilih node sensor ultrasonik yang terdeteksi:</p>
+      <ul id="bt-device-list" class="device-list">
+        <li class="device-item" style="cursor:default;">Memindai perangkat...</li>
+      </ul>
+      <div class="modal-actions">
+        <button id="btn-cancel-bt" class="btn btn-danger">Batal</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    // DATA MODUL & TEORI PRAKTIKUM
+    const materiData = {
+      modules: [
+        {
+          id: "modul-1",
+          title: "Kecepatan Gelombang Ultrasonik",
+          subtitle: "Pengukuran Waktu Tempuh (Time of Flight) di Udara",
+          theory: `
+            <div class="theory-section">
+              <h3>A. Teori Dasar</h3>
+              <p>Gelombang ultrasonik adalah gelombang akustik dengan frekuensi di atas batas pendengaran manusia (>20 kHz). Pada medium udara, gelombang merambat dengan kecepatan konstan yang dipengaruhi oleh suhu medium.</p>
+              <p>Metode <i>Time of Flight (ToF)</i> mengukur selang waktu yang dibutuhkan pulsa ultrasonik untuk merambat dari pemancar (transmitter), memantul pada objek, dan kembali ke penerima (receiver).</p>
+              <div class="formula-box">
+                v = (2 × d) / t
+              </div>
+              <p>Di mana:<br>
+              • <b>v</b> = Kecepatan rambat gelombang (cm/µs atau m/s)<br>
+              • <b>d</b> = Jarak antara sensor dan objek (cm)<br>
+              • <b>t</b> = Waktu tempuh total bolak-balik (µs)
+              </p>
+            </div>
+
+            <div class="theory-section">
+              <h3>B. Tujuan Percobaan</h3>
+              <ul>
+                <li>Memahami prinsip kerja sensor ultrasonik dan metode Time of Flight (ToF).</li>
+                <li>Menentukan hubungan linier antara jarak objek dengan waktu tempuh gelombang.</li>
+                <li>Menghitung nilai kecepatan rambat gelombang ultrasonik di udara secara eksperimental.</li>
+              </ul>
+            </div>
+
+            <div class="theory-section">
+              <h3>C. Alat dan Bahan</h3>
+              <ul>
+                <li>Node Sensor PhyLab ESP32 & Ultrasonik HC-SR04</li>
+                <li>Layar Pantul / Obstakel Datar</li>
+                <li>Mistar / Penggaris Presisi (sebagai pembanding)</li>
+                <li>Aplikasi Desktop PhyLab Pro</li>
+              </ul>
+            </div>
+
+            <div class="theory-section">
+              <h3>D. Langkah Kerja</h3>
+              <ol>
+                <li>Hubungkan Node Sensor ke aplikasi PhyLab Pro melalui koneksi Bluetooth.</li>
+                <li>Letakkan layar pantul tepat di depan sensor dengan jarak awal 10 cm (verifikasi dengan mistar).</li>
+                <li>Pindah ke tab <b>Dashboard Pengukuran</b> dan klik <b>Start Record</b>.</li>
+                <li>Variasikan jarak layar pantul setiap increment 5 cm (misal: 10 cm, 15 cm, 20 cm, dst).</li>
+                <li>Hentikan perekaman dengan tombol <b>Stop Record</b> dan unduh data berupa CSV untuk dianalisis.</li>
+              </ol>
+            </div>
+          `
+        },
+        {
+          id: "modul-2",
+          title: "Pemantulan Gelombang Ultrasonik",
+          subtitle: "Karakteristik Pemantulan pada Berbagai Jenis Penghalang",
+          theory: `
+            <div class="theory-section">
+              <h3>A. Teori Dasar</h3>
+              <p>Ketika gelombang ultrasonik menumbuk batas antara dua medium berbeda, sebagian energi gelombang akan dipantulkan dan sebagian lagi diserap atau diteruskan. Besarnya intensitas gelombang yang dipantulkan bergantung pada perbandingan impedansi akustik kedua medium.</p>
+              <div class="formula-box">
+                Hukum Pemantulan: θ_datang = θ_pantul
+              </div>
+              <p>Bahan padat dan keras (seperti kayu atau logam) memiliki pemantulan akustik yang tinggi, sedangkan bahan berserat/poros (seperti kain atau busa) cenderung menyerap gelombang akustik.</p>
+            </div>
+
+            <div class="theory-section">
+              <h3>B. Tujuan Percobaan</h3>
+              <ul>
+                <li>Menganalisis pengaruh jenis bahan penghalang terhadap pemantulan gelombang ultrasonik.</li>
+                <li>Mengamati batas sudut kemiringan maksimum bidang pantul yang masih dapat dideteksi oleh sensor.</li>
+              </ul>
+            </div>
+
+            <div class="theory-section">
+              <h3>C. Alat dan Bahan</h3>
+              <ul>
+                <li>Node Sensor PhyLab ESP32 & Ultrasonik HC-SR04</li>
+                <li>Sampel Bahan Pantul (Papan Kayu, Busa/Spons, Acrylic, Kain)</li>
+                <li>Busur Derajat (untuk variasi sudut)</li>
+              </ul>
+            </div>
+
+            <div class="theory-section">
+              <h3>D. Langkah Kerja</h3>
+              <ol>
+                <li>Posisikan sensor pada jarak tetap 20 cm dari dudukan sampel.</li>
+                <li>Uji pemantulan menggunakan sampel bahan padat (kayu/acrylic) lalu amati kestabilan grafik.</li>
+                <li>Ganti sampel dengan bahan penyerap (busa/kain) pada jarak yang sama dan catat perbedaannya.</li>
+                <li>Miringkan sampel secara bertahap (0°, 15°, 30°, 45°) untuk mengamati efek refleksi spekular.</li>
+              </ol>
+            </div>
+          `
+        }
+      ]
+    };
+
+    let activeModuleIndex = 0;
+    let chartInstance = null;
+    let bluetoothDevice = null;
+    let gattServer = null;
+    let isRecording = false;
+    let recordedData = [];
+
+    const SERVICE_UUID = '4880c12c-1030-4740-9f2f-26996929b59a'; 
+    const CHARACTERISTIC_UUID = 'fec26ec4-6d71-4442-9f81-55bc21d658d6';
+
+    function loadModules() {
+      const container = document.getElementById('module-list-container');
+      container.innerHTML = '';
+
+      materiData.modules.forEach((module, index) => {
+        const li = document.createElement('li');
+        li.className = `module-item ${index === 0 ? 'active' : ''}`;
+        li.innerText = module.title;
+        li.onclick = () => selectModule(index);
+        container.appendChild(li);
+      });
+
+      selectModule(0);
+    }
+
+    function selectModule(index) {
+      activeModuleIndex = index;
+      const module = materiData.modules[index];
+
+      document.querySelectorAll('.module-item').forEach((el, idx) => {
+        el.classList.toggle('active', idx === index);
+      });
+
+      document.getElementById('active-module-title').innerText = module.title;
+      document.getElementById('active-module-subtitle').innerText = module.subtitle;
+      document.getElementById('theory-content').innerHTML = module.theory;
+    }
+
+    function switchTab(tabName) {
+      const dashboardView = document.getElementById('view-dashboard');
+      const theoryView = document.getElementById('view-theory');
+      const tabDashboard = document.getElementById('tab-dashboard');
+      const tabTheory = document.getElementById('tab-theory');
+
+      if (tabName === 'dashboard') {
+        dashboardView.classList.remove('hidden-view');
+        theoryView.classList.add('hidden-view');
+        tabDashboard.classList.add('active');
+        tabTheory.classList.remove('active');
+      } else {
+        dashboardView.classList.add('hidden-view');
+        theoryView.classList.remove('hidden-view');
+        tabDashboard.classList.remove('active');
+        tabTheory.classList.add('active');
+      }
+    }
+
+    function initChart() {
+      const ctx = document.getElementById('realtimeChart').getContext('2d');
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Jarak Terukur (cm)',
+            data: [],
+            borderColor: '#2563eb',
+            backgroundColor: 'rgba(37, 99, 235, 0.05)',
+            fill: true,
+            tension: 0.2,
+            borderWidth: 2,
+            pointRadius: 2,
+            pointBackgroundColor: '#2563eb'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { 
+              grid: { color: '#f1f5f9' },
+              ticks: { color: '#64748b', font: { size: 11 } }
+            },
+            y: { 
+              grid: { color: '#e2e8f0' },
+              ticks: { color: '#64748b', font: { size: 11 } },
+              beginAtZero: true 
+            }
+          },
+          plugins: {
+            legend: { labels: { color: '#0f172a', font: { weight: '600' } } }
+          }
+        }
+      });
+    }
+
+    async function connectBluetoothNode() {
+      const statusBadge = document.getElementById('bluetooth-status');
+      try {
+        statusBadge.innerText = 'Mencari Node...';
+
+        bluetoothDevice = await navigator.bluetooth.requestDevice({
+          acceptAllDevices: true,
+          optionalServices: [SERVICE_UUID]
+        });
+
+        bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
+
+        statusBadge.innerText = 'Menghubungkan...';
+        gattServer = await bluetoothDevice.gatt.connect();
+
+        const service = await gattServer.getPrimaryService(SERVICE_UUID);
+        const characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
+
+        await characteristic.startNotifications();
+        characteristic.addEventListener('characteristicvaluechanged', handleSensorData);
+
+        statusBadge.innerText = `Terhubung: ${bluetoothDevice.name || 'Node 01'}`;
+        statusBadge.classList.add('connected');
+        
+        const btnConnect = document.getElementById('btn-connect-bt');
+        btnConnect.innerText = 'Putuskan Sensor';
+        btnConnect.onclick = disconnectBluetooth;
+
+        document.getElementById('btn-start').disabled = false;
+
+      } catch (error) {
+        statusBadge.innerText = 'Bluetooth Terputus';
+        statusBadge.classList.remove('connected');
+        hideBluetoothModal();
+      }
+    }
+
+    ipcRenderer.on('bluetooth-devices-found', (event, devices) => {
+      showBluetoothModal(devices);
+    });
+
+    function showBluetoothModal(devices) {
+      const modal = document.getElementById('bt-modal');
+      const listContainer = document.getElementById('bt-device-list');
+      listContainer.innerHTML = '';
+
+      if (!devices || devices.length === 0) {
+        listContainer.innerHTML = '<li class="device-item" style="cursor:default;">Tidak ada perangkat ditemukan...</li>';
+      } else {
+        devices.forEach(device => {
+          const li = document.createElement('li');
+          li.className = 'device-item';
+          li.innerHTML = `
+            <span><strong>${device.deviceName || 'Perangkat Node'}</strong></span>
+            <span style="font-size: 0.75rem; color: #64748b;">${device.deviceId}</span>
+          `;
+          li.onclick = () => {
+            ipcRenderer.send('select-bluetooth-device-id', device.deviceId);
+            hideBluetoothModal();
+          };
+          listContainer.appendChild(li);
+        });
+      }
+      modal.classList.remove('hidden');
+    }
+
+    function hideBluetoothModal() {
+      document.getElementById('bt-modal').classList.add('hidden');
+    }
+
+    function cancelBluetoothScan() {
+      ipcRenderer.send('cancel-bluetooth-scan');
+      hideBluetoothModal();
+    }
+
+    function disconnectBluetooth() {
+      if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+        bluetoothDevice.gatt.disconnect();
+      }
+    }
+
+    function onDisconnected() {
+      const statusBadge = document.getElementById('bluetooth-status');
+      const btnConnect = document.getElementById('btn-connect-bt');
+
+      statusBadge.innerText = 'Bluetooth Terputus';
+      statusBadge.classList.remove('connected');
+      btnConnect.innerText = 'Hubungkan Sensor';
+      btnConnect.onclick = connectBluetoothNode;
+
+      stopRecording();
+      document.getElementById('btn-start').disabled = true;
+    }
+
+    function handleSensorData(event) {
+      const dataView = event.target.value;
+      if (dataView.byteLength >= 4) {
+        const distanceValue = dataView.getFloat32(0, true);
+
+        if (!isNaN(distanceValue) && distanceValue > 0) {
+          const timeValue = ((distanceValue * 2) / 0.0343).toFixed(2);
+          const formattedDistance = distanceValue.toFixed(2);
+
+          document.getElementById('val-distance').innerHTML = `${formattedDistance} <span class="unit">cm</span>`;
+          document.getElementById('val-time').innerHTML = `${timeValue} <span class="unit">µs</span>`;
+
+          if (isRecording) {
+            const currentTime = new Date().toLocaleTimeString();
+
+            recordedData.push({
+              timestamp: currentTime,
+              distance: formattedDistance,
+              timeOfFlight: timeValue
+            });
+
+            chartInstance.data.labels.push(currentTime);
+            chartInstance.data.datasets[0].data.push(formattedDistance);
+
+            if (chartInstance.data.labels.length > 30) {
+              chartInstance.data.labels.shift();
+              chartInstance.data.datasets[0].data.shift();
+            }
+
+            chartInstance.update();
+          }
+        }
+      }
+    }
+
+    function startRecording() {
+      isRecording = true;
+      document.getElementById('btn-start').disabled = true;
+      document.getElementById('btn-stop').disabled = false;
+      const statusEl = document.getElementById('recording-indicator');
+      statusEl.innerHTML = 'Status: <span style="color:#dc2626">🔴 Merekam Data...</span>';
+    }
+
+    function stopRecording() {
+      isRecording = false;
+      document.getElementById('btn-start').disabled = false;
+      document.getElementById('btn-stop').disabled = true;
+      const statusEl = document.getElementById('recording-indicator');
+      statusEl.innerHTML = 'Status: <span style="color:#d97706">⏸ Dijeda</span>';
+    }
+
+    function resetData() {
+      stopRecording();
+      recordedData = [];
+      chartInstance.data.labels = [];
+      chartInstance.data.datasets[0].data = [];
+      chartInstance.update();
+      document.getElementById('val-distance').innerHTML = `-- <span class="unit">cm</span>`;
+      document.getElementById('val-time').innerHTML = `-- <span class="unit">µs</span>`;
+      const statusEl = document.getElementById('recording-indicator');
+      statusEl.innerText = 'Status: Standby (Data Dibersihkan)';
+    }
+
+    function downloadCSV() {
+      if (recordedData.length === 0) {
+        alert('Belum ada data direkam!');
+        return;
+      }
+      let csvContent = "data:text/csv;charset=utf-8,Waktu,Jarak (cm),Time of Flight (us)\n";
+      recordedData.forEach(row => {
+        csvContent += `${row.timestamp},${row.distance},${row.timeOfFlight}\n`;
+      });
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `PhyLab_Data_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    window.onload = () => {
+      loadModules();
+      initChart();
+
+      document.getElementById('btn-connect-bt').onclick = connectBluetoothNode;
+      document.getElementById('btn-cancel-bt').onclick = cancelBluetoothScan;
+      document.getElementById('btn-start').onclick = startRecording;
+      document.getElementById('btn-stop').onclick = stopRecording;
+      document.getElementById('btn-reset').onclick = resetData;
+      document.getElementById('btn-download').onclick = downloadCSV;
+    };
+  </script>
+</body>
+</html>

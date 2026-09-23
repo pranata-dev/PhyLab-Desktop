@@ -1,0 +1,16 @@
+{
+  "name": "phylab-pro-desktop",
+  "version": "1.0.0",
+  "description": "Aplikasi Desktop Lab Fisika Bluetooth - PhyLab Pro",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "package": "electron-packager . PhyLabPro --platform=win32 --arch=x64 --out=dist --overwrite"
+  },
+  "author": "PhyLab Team",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-packager": "^17.1.2"
+  }
+}

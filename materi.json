@@ -1,0 +1,29 @@
+{
+  "modules": [
+    {
+      "id": "modul-1",
+      "title": "Praktikum 1: Kecepatan Gelombang Ultrasonik",
+      "subtitle": "Pengukuran Waktu Tempuh (Time of Flight) di Udara",
+      "objective": "Menentukan laju rambat gelombang ultrasonik pada medium udara suhu ruang.",
+      "formula": "v = \\frac{\\Delta s}{\\Delta t}",
+      "steps": [
+        "Nyalakan modul Transceiver dan Receiver PhyLab.",
+        "Posisikan kedua node pada jarak awal 20 cm.",
+        "Aktifkan mode pengambilan data dan amati grafik waktu respon.",
+        "Variasikan jarak dari 20 cm hingga 100 cm dengan kelipatan 10 cm."
+      ]
+    },
+    {
+      "id": "modul-2",
+      "title": "Praktikum 2: Pemantulan Gelombang Ultrasonik",
+      "subtitle": "Karakteristik Pemantulan pada Berbagai Jenis Penghalang",
+      "objective": "Menganalisis koefisien pantul gelombang pada bidang kayu, akrilik, dan busa.",
+      "formula": "R = \\frac{A_r}{A_i} \\times 100\\%",
+      "steps": [
+        "Pasang modul pemancar pada sudut datang 45 derajat.",
+        "Letakkan sampel bahan penghalang di titik fokus.",
+        "Amati amplitudo gelombang pantul pada grafik PhyLab."
+      ]
+    }
+  ]
+}
