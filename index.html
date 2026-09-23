@@ -8,9 +8,10 @@
 
   <style>
     /* ==========================================================================
-       1. RESET & VARIABEL TEMA (MUTED SCIENTIFIC & PROFESSIONAL PALETTE)
+       1. CSS VARIABLES (SISTEM TEMA LIGHT & DARK MODE)
        ========================================================================== */
     :root {
+      /* Tema Standar (Light Mode) */
       --bg-app: #f8fafc;
       --bg-surface: #ffffff;
       --bg-sidebar: #0f172a;
@@ -27,6 +28,14 @@
       --text-sidebar: #94a3b8;
       --text-sidebar-active: #ffffff;
 
+      --formula-bg: #f8fafc;
+      --formula-border: #e2e8f0;
+
+      --btn-bg: #ffffff;
+      --btn-hover: #f8fafc;
+      --btn-text: #0f172a;
+      --btn-border: #cbd5e1;
+
       --accent-primary: #2563eb;
       --accent-hover: #1d4ed8;
       --accent-light: #eff6ff;
@@ -42,6 +51,43 @@
       --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
     }
 
+    /* Tema Gelap (Dark Mode) - Slate Gelap Profesional, Nyaman di Mata */
+    body.dark-mode {
+      --bg-app: #0f172a;
+      --bg-surface: #1e293b;
+      --bg-sidebar: #090d16;
+      --bg-sidebar-hover: #162032;
+      --bg-sidebar-active: rgba(255, 255, 255, 0.08);
+      
+      --border-subtle: #334155;
+      --border-strong: #475569;
+      --border-sidebar: #1e293b;
+
+      --text-main: #f8fafc;         /* Putih gading kontras tinggi */
+      --text-secondary: #cbd5e1;    /* Slate cerah untuk keterbacaan tinggi */
+      --text-muted: #94a3b8;
+      --text-sidebar: #94a3b8;
+      --text-sidebar-active: #ffffff;
+
+      --formula-bg: #090d16;
+      --formula-border: #334155;
+
+      --btn-bg: #1e293b;
+      --btn-hover: #334155;
+      --btn-text: #f8fafc;
+      --btn-border: #475569;
+
+      --accent-primary: #3b82f6;
+      --accent-hover: #60a5fa;
+      --accent-light: rgba(59, 130, 246, 0.15);
+
+      --status-connected: #10b981;
+      --status-connected-bg: rgba(16, 185, 129, 0.12);
+      --status-connected-border: rgba(16, 185, 129, 0.3);
+
+      --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.4);
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -55,6 +101,7 @@
       height: 100vh;
       overflow: hidden;
       -webkit-font-smoothing: antialiased;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
     .app-layout {
@@ -65,7 +112,7 @@
     }
 
     /* ==========================================================================
-       2. PERBAIKAN SIDEBAR KIRI (COLLAPSIBLE & SOLID ACTIVE INDICATOR)
+       2. SIDEBAR KIRI (COLLAPSIBLE & SOLID ACTIVE INDICATOR)
        ========================================================================== */
     .sidebar {
       width: 270px;
@@ -79,12 +126,13 @@
       transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
                   min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
                   padding 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-                  opacity 0.2s ease;
+                  opacity 0.2s ease,
+                  background-color 0.3s ease,
+                  border-color 0.3s ease;
       white-space: nowrap;
       overflow: hidden;
     }
 
-    /* Status Saat Sidebar Diciutkan (Collapsed) */
     .sidebar.collapsed {
       width: 0 !important;
       min-width: 0 !important;
@@ -139,7 +187,6 @@
       gap: 5px;
     }
 
-    /* Gaya Navigasi Menu Sidebar: Indikator Tebal di Kiri & Latar Diredam */
     .module-item {
       padding: 11px 14px;
       border-radius: 6px;
@@ -162,13 +209,13 @@
       background-color: var(--bg-sidebar-active);
       color: var(--text-sidebar-active);
       font-weight: 600;
-      border-left: 4px solid #2563eb; /* Indikator tebal di sisi kiri */
+      border-left: 4px solid var(--accent-primary);
       border-radius: 0 6px 6px 0;
     }
 
     /* ==========================================================================
        3. AREA KONTEN UTAMA & HEADER KANAN
-       ========================================================================= */
+       ========================================================================== */
     .main-content {
       flex: 1;
       padding: 20px 24px;
@@ -177,7 +224,7 @@
       flex-direction: column;
       gap: 16px;
       min-width: 0;
-      transition: all 0.3s ease;
+      transition: background-color 0.3s ease;
     }
 
     .header-card {
@@ -190,6 +237,7 @@
       align-items: center;
       box-shadow: var(--shadow-sm);
       gap: 16px;
+      transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
     }
 
     .header-left {
@@ -198,9 +246,9 @@
       gap: 14px;
     }
 
-    /* Tombol Toggle Hamburger Sidebar */
+    /* Tombol Icon Toggle */
     .btn-icon-toggle {
-      background: #ffffff;
+      background: var(--btn-bg);
       border: 1px solid var(--border-subtle);
       border-radius: 6px;
       width: 36px;
@@ -210,27 +258,35 @@
       justify-content: center;
       color: var(--text-secondary);
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: all 0.2s ease;
       flex-shrink: 0;
     }
 
     .btn-icon-toggle:hover {
-      background-color: #f1f5f9;
+      background-color: var(--btn-hover);
       color: var(--text-main);
       border-color: var(--border-strong);
     }
+
+    /* Ikon Theme Toggle */
+    .icon-sun { display: none; }
+    .icon-moon { display: block; }
+    body.dark-mode .icon-sun { display: block; }
+    body.dark-mode .icon-moon { display: none; }
 
     .header-titles h1 {
       font-size: 1.15rem;
       font-weight: 700;
       color: var(--text-main);
       letter-spacing: -0.2px;
+      transition: color 0.3s ease;
     }
 
     .header-titles p {
       color: var(--text-secondary);
       font-size: 0.82rem;
       margin-top: 2px;
+      transition: color 0.3s ease;
     }
 
     .header-controls {
@@ -249,9 +305,10 @@
       border-radius: 6px;
       font-size: 0.78rem;
       font-weight: 600;
-      background: #f1f5f9;
+      background: var(--btn-bg);
       color: var(--text-secondary);
       border: 1px solid var(--border-subtle);
+      transition: all 0.3s ease;
     }
 
     .status-badge.connected {
@@ -294,6 +351,7 @@
       gap: 6px;
       border-bottom: 1px solid var(--border-subtle);
       padding-bottom: 0px;
+      transition: border-color 0.3s ease;
     }
 
     .tab-btn {
@@ -332,6 +390,7 @@
       justify-content: space-between;
       align-items: center;
       box-shadow: var(--shadow-sm);
+      transition: background-color 0.3s ease, border-color 0.3s ease;
     }
 
     .action-toolbar {
@@ -356,10 +415,9 @@
       color: var(--text-secondary);
     }
 
-    /* Tombol Bersih & Profesional */
     .btn {
       padding: 7px 13px;
-      border: 1px solid var(--border-strong);
+      border: 1px solid var(--btn-border);
       border-radius: 6px;
       font-weight: 600;
       font-size: 0.82rem;
@@ -368,8 +426,8 @@
       display: inline-flex;
       align-items: center;
       gap: 7px;
-      background: #ffffff;
-      color: var(--text-main);
+      background: var(--btn-bg);
+      color: var(--btn-text);
     }
 
     .btn svg {
@@ -377,15 +435,15 @@
     }
 
     .btn:hover:not(:disabled) {
-      background: #f8fafc;
-      border-color: #94a3b8;
+      background: var(--btn-hover);
+      border-color: var(--border-strong);
     }
 
     .btn:disabled {
       opacity: 0.45;
       cursor: not-allowed;
       border-color: var(--border-subtle);
-      background: #f8fafc;
+      background: var(--btn-bg);
       color: var(--text-muted);
     }
 
@@ -406,6 +464,12 @@
       color: #ffffff;
     }
 
+    body.dark-mode .btn-action-primary {
+      background: #334155;
+      border-color: #475569;
+      color: #f8fafc;
+    }
+
     .btn-action-primary:hover:not(:disabled) {
       background: #1e293b;
       border-color: #1e293b;
@@ -424,7 +488,7 @@
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       border-radius: 6px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
       min-width: 170px;
       z-index: 100;
       display: flex;
@@ -455,7 +519,7 @@
     }
 
     .dropdown-item:hover {
-      background-color: #f1f5f9;
+      background-color: var(--btn-hover);
       color: var(--accent-primary);
     }
 
@@ -469,7 +533,7 @@
     }
 
     /* ==========================================================================
-       6. KARTU DATA & PENYEMPURNAAN TIPOGRAFI
+       6. KARTU DATA & TIPOGRAFI METRIK KONTRAS TINGGI
        ========================================================================== */
     .metrics-grid {
       display: grid;
@@ -483,6 +547,7 @@
       border-radius: 8px;
       border: 1px solid var(--border-subtle);
       box-shadow: var(--shadow-sm);
+      transition: background-color 0.3s ease, border-color 0.3s ease;
     }
 
     .metric-card .title {
@@ -494,7 +559,7 @@
       letter-spacing: 0.75px;
     }
 
-    /* Nilai Utama Diperbesar dan Ditebalkan */
+    /* Nilai Metrik: Kontras Tinggi, Tebal & Besar */
     .metric-card .value {
       font-size: 2.75rem;
       font-weight: 800;
@@ -515,7 +580,7 @@
     }
 
     /* ==========================================================================
-       7. KONTAINER GRAFIK REAL-TIME (STANDAR ILMIAH CLEAN TANPA GRID LINE)
+       7. KONTAINER GRAFIK REAL-TIME
        ========================================================================== */
     .chart-container {
       background: var(--bg-surface);
@@ -527,6 +592,7 @@
       box-shadow: var(--shadow-sm);
       display: flex;
       flex-direction: column;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
     }
 
     .chart-header {
@@ -560,7 +626,7 @@
     }
 
     /* ==========================================================================
-       8. MODUL TEORI & PANDUAN KERJA
+       8. MODUL TEORI & TIPOGRAFI RUMUS FISIKA (FRACTION & SUBSCRIPT)
        ========================================================================== */
     .theory-container {
       background: var(--bg-surface);
@@ -569,6 +635,7 @@
       border: 1px solid var(--border-subtle);
       box-shadow: var(--shadow-sm);
       line-height: 1.6;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
     }
 
     .theory-section {
@@ -591,7 +658,7 @@
 
     .theory-section p {
       font-size: 0.88rem;
-      color: #334155;
+      color: var(--text-secondary);
       margin-bottom: 10px;
     }
 
@@ -599,7 +666,7 @@
     .theory-section ol {
       padding-left: 20px;
       font-size: 0.88rem;
-      color: #334155;
+      color: var(--text-secondary);
     }
 
     .theory-section li {
@@ -607,18 +674,73 @@
       border: none !important;
     }
 
-    .formula-box {
-      background: #f8fafc;
-      padding: 10px 14px;
-      border-radius: 6px;
-      border: 1px solid var(--border-subtle);
-      border-left: 3px solid var(--accent-primary);
-      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    /* KARTU RUMUS FISIKA STANDAR ILMIAH */
+    .math-formula-card {
+      display: inline-flex;
+      align-items: center;
+      background: var(--formula-bg);
+      padding: 12px 20px;
+      border-radius: 8px;
+      border: 1px solid var(--formula-border);
+      border-left: 4px solid var(--accent-primary);
+      margin: 12px 0;
+      box-shadow: var(--shadow-sm);
+      font-family: 'Cambria Math', 'Times New Roman', Times, serif;
+      font-size: 1.25rem;
+      color: var(--text-main);
+      transition: all 0.3s ease;
+    }
+
+    .math-formula {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
       font-weight: 600;
-      margin: 10px 0;
-      font-size: 0.9rem;
-      color: #0f172a;
-      display: inline-block;
+    }
+
+    .math-var {
+      font-style: italic;
+    }
+
+    .math-equal {
+      font-style: normal;
+      color: var(--text-secondary);
+    }
+
+    /* Pecahan Vertikal Matematika Sejati */
+    .math-fraction {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      vertical-align: middle;
+      padding: 0 4px;
+    }
+
+    .numerator {
+      padding-bottom: 3px;
+      border-bottom: 2px solid var(--text-main);
+      text-align: center;
+      width: 100%;
+      font-size: 1.1rem;
+      font-style: italic;
+    }
+
+    .denominator {
+      padding-top: 3px;
+      text-align: center;
+      width: 100%;
+      font-size: 1.1rem;
+      font-style: italic;
+    }
+
+    /* Subscript Tanpa Underscore */
+    .math-sub {
+      font-size: 0.74rem;
+      font-style: normal;
+      vertical-align: sub;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--text-secondary);
+      font-weight: 500;
     }
 
     /* ==========================================================================
@@ -630,7 +752,7 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(15, 23, 42, 0.45);
+      background: rgba(15, 23, 42, 0.55);
       backdrop-filter: blur(2px);
       display: flex;
       justify-content: center;
@@ -643,13 +765,14 @@
     }
 
     .modal-content {
-      background: #ffffff;
+      background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       padding: 22px;
       border-radius: 8px;
       width: 420px;
       max-width: 90%;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25);
+      transition: background-color 0.3s ease, border-color 0.3s ease;
     }
 
     .modal-content h3 {
@@ -687,7 +810,7 @@
     }
 
     .device-item:hover {
-      background-color: #f8fafc;
+      background-color: var(--btn-hover);
     }
 
     .device-item:last-child {
@@ -718,7 +841,7 @@
 
     <!-- AREA UTAMA -->
     <main class="main-content">
-      <!-- HEADER KANAN DENGAN TOMBOL TOGGLE SIDEBAR -->
+      <!-- HEADER KANAN DENGAN TOMBOL TOGGLE SIDEBAR & SAKELAR DARK MODE -->
       <section class="header-card">
         <div class="header-left">
           <button id="btn-toggle-sidebar" class="btn-icon-toggle" title="Ciutkan / Tampilkan Sidebar">
@@ -734,6 +857,26 @@
           </div>
         </div>
         <div class="header-controls">
+          <!-- Tombol Sakelar Dark Mode / Light Mode -->
+          <button id="btn-toggle-theme" class="btn-icon-toggle" title="Ganti Tema (Light / Dark Mode)">
+            <!-- Ikon Matahari (tampil saat Dark Mode aktif) -->
+            <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <!-- Ikon Bulan (tampil saat Light Mode aktif) -->
+            <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+
           <span id="bluetooth-status" class="status-badge">
             <span class="status-dot"></span> Terputus
           </span>
@@ -873,7 +1016,7 @@
   <script>
     const { ipcRenderer } = require('electron');
 
-    // DATA MODUL & TEORI PRAKTIKUM
+    // DATA MODUL & TEORI PRAKTIKUM (DENGAN PECAHAN MATEMATIKA & SUBSCRIPT)
     const materiData = {
       modules: [
         {
@@ -886,7 +1029,16 @@
               <p>Gelombang ultrasonik adalah gelombang akustik dengan frekuensi di atas batas pendengaran manusia (>20 kHz). Pada medium udara, gelombang merambat dengan kecepatan konstan yang dipengaruhi oleh suhu medium.</p>
               <p>Metode <i>Time of Flight (ToF)</i> mengukur selang waktu yang dibutuhkan pulsa ultrasonik untuk merambat dari pemancar (transmitter), memantul pada objek, dan kembali ke penerima (receiver).</p>
               <div>
-                <div class="formula-box">v = (2 × d) / t</div>
+                <div class="math-formula-card">
+                  <div class="math-formula">
+                    <span class="math-var">v</span>
+                    <span class="math-equal">=</span>
+                    <span class="math-fraction">
+                      <span class="numerator">2 &times; d</span>
+                      <span class="denominator">t</span>
+                    </span>
+                  </div>
+                </div>
               </div>
               <p style="margin-top: 6px;">
                 Di mana:<br>
@@ -922,7 +1074,7 @@
                 <li>Letakkan layar pantul tepat di depan sensor dengan jarak awal 10 cm (verifikasi dengan mistar).</li>
                 <li>Pindah ke tab <b>Dashboard Pengukuran</b> dan klik <b>Start Record</b>.</li>
                 <li>Variasikan jarak layar pantul setiap increment 5 cm (misal: 10 cm, 15 cm, 20 cm, dst).</li>
-                <li>Hentikan perekaman dengan tombol <b>Stop Record</b> dan unduh data berupa CSV untuk dianalisis.</li>
+                <li>Hentikan perekaman dengan tombol <b>Stop Record</b> dan ekspor data ke Excel atau CSV untuk dianalisis.</li>
               </ol>
             </div>
           `
@@ -936,7 +1088,13 @@
               <h3>A. Teori Dasar</h3>
               <p>Ketika gelombang ultrasonik menumbuk batas antara dua medium berbeda, sebagian energi gelombang akan dipantulkan dan sebagian lagi diserap atau diteruskan. Besarnya intensitas gelombang yang dipantulkan bergantung pada perbandingan impedansi akustik kedua medium.</p>
               <div>
-                <div class="formula-box">θ_datang = θ_pantul</div>
+                <div class="math-formula-card">
+                  <div class="math-formula">
+                    <span class="math-var">θ<sub class="math-sub">datang</sub></span>
+                    <span class="math-equal">=</span>
+                    <span class="math-var">θ<sub class="math-sub">pantul</sub></span>
+                  </div>
+                </div>
               </div>
               <p style="margin-top: 6px;">
                 Bahan padat dan keras (seperti kayu atau logam) memiliki pemantulan akustik yang tinggi, sedangkan bahan berserat/poros (seperti kain atau busa) cenderung menyerap gelombang akustik.
@@ -1045,9 +1203,49 @@
       }, 320);
     }
 
+    // SISTEM PENGATURAN TEMA (DARK / LIGHT MODE)
+    function applyTheme(isDark) {
+      if (isDark) {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('phylab-theme', 'dark');
+      } else {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('phylab-theme', 'light');
+      }
+
+      // Update warna garis sumbu dan legend Chart.js secara dinamis agar kontras tinggi
+      if (chartInstance) {
+        const isDarkMode = document.body.classList.contains('dark-mode');
+        chartInstance.options.scales.x.border.color = isDarkMode ? '#475569' : '#94a3b8';
+        chartInstance.options.scales.y.border.color = isDarkMode ? '#475569' : '#94a3b8';
+        chartInstance.options.scales.x.ticks.color = isDarkMode ? '#94a3b8' : '#475569';
+        chartInstance.options.scales.y.ticks.color = isDarkMode ? '#94a3b8' : '#475569';
+        chartInstance.options.scales.x.title.color = isDarkMode ? '#cbd5e1' : '#64748b';
+        chartInstance.options.scales.y.title.color = isDarkMode ? '#cbd5e1' : '#64748b';
+        chartInstance.options.plugins.legend.labels.color = isDarkMode ? '#f8fafc' : '#334155';
+        chartInstance.data.datasets[0].borderColor = isDarkMode ? '#38bdf8' : '#2563eb';
+        chartInstance.data.datasets[0].pointBackgroundColor = isDarkMode ? '#38bdf8' : '#2563eb';
+        chartInstance.data.datasets[0].backgroundColor = isDarkMode ? 'rgba(56, 189, 248, 0.08)' : 'rgba(37, 99, 235, 0.04)';
+        chartInstance.update();
+      }
+    }
+
+    function toggleTheme() {
+      const isCurrentlyDark = document.body.classList.contains('dark-mode');
+      applyTheme(!isCurrentlyDark);
+    }
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem('phylab-theme');
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      applyTheme(savedTheme === 'dark' || (!savedTheme && prefersDark));
+    }
+
     // INISIALISASI GRAFIK REAL-TIME DENGAN ATURAN STANDAR KAMPUS (TANPA GRID LINE)
     function initChart() {
       const ctx = document.getElementById('realtimeChart').getContext('2d');
+      const isDarkMode = document.body.classList.contains('dark-mode');
+
       chartInstance = new Chart(ctx, {
         type: 'line',
         data: {
@@ -1055,13 +1253,13 @@
           datasets: [{
             label: 'Jarak Terukur (cm)',
             data: [],
-            borderColor: '#2563eb',
-            backgroundColor: 'rgba(37, 99, 235, 0.04)',
+            borderColor: isDarkMode ? '#38bdf8' : '#2563eb',
+            backgroundColor: isDarkMode ? 'rgba(56, 189, 248, 0.08)' : 'rgba(37, 99, 235, 0.04)',
             fill: true,
             tension: 0.15,
             borderWidth: 2,
             pointRadius: 2,
-            pointBackgroundColor: '#2563eb'
+            pointBackgroundColor: isDarkMode ? '#38bdf8' : '#2563eb'
           }]
         },
         options: {
@@ -1077,17 +1275,17 @@
               // Pertahankan hanya garis sumbu utama (X-axis)
               border: {
                 display: true,
-                color: '#94a3b8',
+                color: isDarkMode ? '#475569' : '#94a3b8',
                 width: 1.5
               },
               ticks: { 
-                color: '#475569', 
+                color: isDarkMode ? '#94a3b8' : '#475569', 
                 font: { size: 10, weight: '500' } 
               },
               title: {
                 display: true,
                 text: 'Sampel Waktu',
-                color: '#64748b',
+                color: isDarkMode ? '#cbd5e1' : '#64748b',
                 font: { size: 11, weight: '600' }
               }
             },
@@ -1100,17 +1298,17 @@
               // Pertahankan hanya garis sumbu utama (Y-axis)
               border: {
                 display: true,
-                color: '#94a3b8',
+                color: isDarkMode ? '#475569' : '#94a3b8',
                 width: 1.5
               },
               ticks: { 
-                color: '#475569', 
+                color: isDarkMode ? '#94a3b8' : '#475569', 
                 font: { size: 10, weight: '500' } 
               },
               title: {
                 display: true,
                 text: 'Jarak (cm)',
-                color: '#64748b',
+                color: isDarkMode ? '#cbd5e1' : '#64748b',
                 font: { size: 11, weight: '600' }
               },
               beginAtZero: true 
@@ -1119,7 +1317,11 @@
           plugins: {
             legend: { 
               display: true,
-              labels: { color: '#334155', font: { size: 11, weight: '600' }, boxWidth: 12 } 
+              labels: { 
+                color: isDarkMode ? '#f8fafc' : '#334155', 
+                font: { size: 11, weight: '600' }, 
+                boxWidth: 12 
+              } 
             }
           }
         }
@@ -1322,10 +1524,12 @@
     }
 
     window.onload = () => {
+      initTheme();
       loadModules();
       initChart();
 
       document.getElementById('btn-toggle-sidebar').onclick = toggleSidebar;
+      document.getElementById('btn-toggle-theme').onclick = toggleTheme;
       document.getElementById('btn-connect-bt').onclick = connectBluetoothNode;
       document.getElementById('btn-cancel-bt').onclick = cancelBluetoothScan;
       document.getElementById('btn-start').onclick = startRecording;

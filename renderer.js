@@ -223,4 +223,51 @@ window.addEventListener('DOMContentLoaded', () => {
       exportMenu.classList.add('hidden');
     });
   }
+
+  // Theme Toggle Listener
+  const btnToggleTheme = document.getElementById('btn-toggle-theme');
+  if (btnToggleTheme) {
+    btnToggleTheme.addEventListener('click', toggleTheme);
+  }
+
+  initTheme();
 });
+
+// 8. Sistem Pengaturan Tema (Light / Dark Mode)
+function applyTheme(isDark) {
+  if (isDark) {
+    document.body.classList.add('dark-mode');
+    localStorage.setItem('phylab-theme', 'dark');
+  } else {
+    document.body.classList.remove('dark-mode');
+    localStorage.setItem('phylab-theme', 'light');
+  }
+
+  if (chartInstance) {
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    chartInstance.options.scales.x.border.color = isDarkMode ? '#475569' : '#94a3b8';
+    chartInstance.options.scales.y.border.color = isDarkMode ? '#475569' : '#94a3b8';
+    chartInstance.options.scales.x.ticks.color = isDarkMode ? '#94a3b8' : '#475569';
+    chartInstance.options.scales.y.ticks.color = isDarkMode ? '#94a3b8' : '#475569';
+    chartInstance.options.scales.x.title.color = isDarkMode ? '#cbd5e1' : '#64748b';
+    chartInstance.options.scales.y.title.color = isDarkMode ? '#cbd5e1' : '#64748b';
+    if (chartInstance.options.plugins?.legend?.labels) {
+      chartInstance.options.plugins.legend.labels.color = isDarkMode ? '#f8fafc' : '#334155';
+    }
+    chartInstance.data.datasets[0].borderColor = isDarkMode ? '#38bdf8' : '#2563eb';
+    chartInstance.data.datasets[0].pointBackgroundColor = isDarkMode ? '#38bdf8' : '#2563eb';
+    chartInstance.data.datasets[0].backgroundColor = isDarkMode ? 'rgba(56, 189, 248, 0.08)' : 'rgba(37, 99, 235, 0.04)';
+    chartInstance.update();
+  }
+}
+
+function toggleTheme() {
+  const isCurrentlyDark = document.body.classList.contains('dark-mode');
+  applyTheme(!isCurrentlyDark);
+}
+
+function initTheme() {
+  const savedTheme = localStorage.getItem('phylab-theme');
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(savedTheme === 'dark' || (!savedTheme && prefersDark));
+}
