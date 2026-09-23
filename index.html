@@ -15,7 +15,7 @@
       --bg-surface: #ffffff;
       --bg-sidebar: #0f172a;
       --bg-sidebar-hover: #1e293b;
-      --bg-sidebar-active: #1e293b;
+      --bg-sidebar-active: rgba(255, 255, 255, 0.06);
       
       --border-subtle: #e2e8f0;
       --border-strong: #cbd5e1;
@@ -25,7 +25,7 @@
       --text-secondary: #475569;
       --text-muted: #94a3b8;
       --text-sidebar: #94a3b8;
-      --text-sidebar-active: #f8fafc;
+      --text-sidebar-active: #ffffff;
 
       --accent-primary: #2563eb;
       --accent-hover: #1d4ed8;
@@ -60,10 +60,12 @@
     .app-layout {
       display: flex;
       height: 100vh;
+      width: 100vw;
+      overflow: hidden;
     }
 
     /* ==========================================================================
-       2. SIDEBAR KIRI (NAVIGASI PROFESIONAL)
+       2. PERBAIKAN SIDEBAR KIRI (COLLAPSIBLE & SOLID ACTIVE INDICATOR)
        ========================================================================== */
     .sidebar {
       width: 270px;
@@ -74,6 +76,23 @@
       display: flex;
       flex-direction: column;
       border-right: 1px solid var(--border-sidebar);
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                  min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                  padding 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity 0.2s ease;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    /* Status Saat Sidebar Diciutkan (Collapsed) */
+    .sidebar.collapsed {
+      width: 0 !important;
+      min-width: 0 !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      border-right: none !important;
+      opacity: 0;
+      pointer-events: none;
     }
 
     .sidebar-brand {
@@ -117,23 +136,25 @@
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 5px;
     }
 
+    /* Gaya Navigasi Menu Sidebar: Indikator Tebal di Kiri & Latar Diredam */
     .module-item {
-      padding: 10px 12px;
+      padding: 11px 14px;
       border-radius: 6px;
       cursor: pointer;
-      font-size: 0.84rem;
+      font-size: 0.85rem;
       color: var(--text-sidebar);
       transition: all 0.15s ease;
       font-weight: 500;
-      line-height: 1.35;
-      border-left: 3px solid transparent;
+      line-height: 1.4;
+      border-left: 4px solid transparent;
+      background-color: transparent;
     }
 
     .module-item:hover {
-      background-color: var(--bg-sidebar-hover);
+      background-color: rgba(255, 255, 255, 0.04);
       color: #f1f5f9;
     }
 
@@ -141,7 +162,8 @@
       background-color: var(--bg-sidebar-active);
       color: var(--text-sidebar-active);
       font-weight: 600;
-      border-left-color: var(--accent-primary);
+      border-left: 4px solid #2563eb; /* Indikator tebal di sisi kiri */
+      border-radius: 0 6px 6px 0;
     }
 
     /* ==========================================================================
@@ -154,17 +176,48 @@
       display: flex;
       flex-direction: column;
       gap: 16px;
+      min-width: 0; /* Mencegah overflow flexbox */
+      transition: all 0.3s ease;
     }
 
     .header-card {
       background: var(--bg-surface);
-      padding: 16px 20px;
+      padding: 14px 20px;
       border-radius: 8px;
       border: 1px solid var(--border-subtle);
       display: flex;
       justify-content: space-between;
       align-items: center;
       box-shadow: var(--shadow-sm);
+      gap: 16px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    /* Tombol Toggle Hamburger Sidebar */
+    .btn-icon-toggle {
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .btn-icon-toggle:hover {
+      background-color: #f1f5f9;
+      color: var(--text-main);
+      border-color: var(--border-strong);
     }
 
     .header-titles h1 {
@@ -184,6 +237,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      flex-shrink: 0;
     }
 
     /* Status Badge */
@@ -358,7 +412,7 @@
     }
 
     /* ==========================================================================
-       6. KARTU DATA & METRIK REAL-TIME
+       6. KARTU DATA & PENYEMPURNAAN TIPOGRAFI
        ========================================================================== */
     .metrics-grid {
       display: grid;
@@ -368,39 +422,43 @@
 
     .metric-card {
       background: var(--bg-surface);
-      padding: 16px 20px;
+      padding: 20px 24px;
       border-radius: 8px;
       border: 1px solid var(--border-subtle);
       box-shadow: var(--shadow-sm);
     }
 
     .metric-card .title {
-      font-size: 0.74rem;
+      font-size: 0.75rem;
       color: var(--text-secondary);
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.6px;
+      letter-spacing: 0.75px;
     }
 
+    /* Nilai Utama Diperbesar dan Ditebalkan */
     .metric-card .value {
-      font-size: 1.95rem;
-      font-weight: 700;
+      font-size: 2.75rem;
+      font-weight: 800;
       color: var(--text-main);
       font-variant-numeric: tabular-nums;
       display: flex;
       align-items: baseline;
+      line-height: 1.1;
+      letter-spacing: -1px;
     }
 
     .metric-card .unit {
-      font-size: 0.92rem;
-      color: var(--text-muted);
-      font-weight: 500;
-      margin-left: 6px;
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+      margin-left: 8px;
+      letter-spacing: 0;
     }
 
     /* ==========================================================================
-       7. KONTAINER GRAFIK REAL-TIME
+       7. KONTAINER GRAFIK REAL-TIME (STANDAR ILMIAH CLEAN TANPA GRID LINE)
        ========================================================================== */
     .chart-container {
       background: var(--bg-surface);
@@ -408,7 +466,7 @@
       border-radius: 8px;
       border: 1px solid var(--border-subtle);
       flex: 1;
-      min-height: 300px;
+      min-height: 320px;
       box-shadow: var(--shadow-sm);
       display: flex;
       flex-direction: column;
@@ -441,6 +499,7 @@
       position: relative;
       width: 100%;
       height: 100%;
+      min-height: 240px;
     }
 
     /* ==========================================================================
@@ -488,7 +547,7 @@
 
     .theory-section li {
       margin-bottom: 7px;
-      border: none !important; /* Hapus garis pemisah antar list item */
+      border: none !important;
     }
 
     .formula-box {
@@ -591,7 +650,7 @@
 <body>
   <div class="app-layout">
     <!-- SIDEBAR KIRI -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="app-sidebar">
       <div class="sidebar-brand">
         <h2>PhyLab Pro</h2>
         <span class="brand-badge">LAB</span>
@@ -602,11 +661,20 @@
 
     <!-- AREA UTAMA -->
     <main class="main-content">
-      <!-- HEADER KANAN -->
+      <!-- HEADER KANAN DENGAN TOMBOL TOGGLE SIDEBAR -->
       <section class="header-card">
-        <div class="header-titles">
-          <h1 id="active-module-title">Memuat Modul...</h1>
-          <p id="active-module-subtitle"></p>
+        <div class="header-left">
+          <button id="btn-toggle-sidebar" class="btn-icon-toggle" title="Ciutkan / Tampilkan Sidebar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+          <div class="header-titles">
+            <h1 id="active-module-title">Memuat Modul...</h1>
+            <p id="active-module-subtitle"></p>
+          </div>
         </div>
         <div class="header-controls">
           <span id="bluetooth-status" class="status-badge">
@@ -670,7 +738,7 @@
           </div>
         </section>
 
-        <!-- KARTU DATA METRIK -->
+        <!-- KARTU DATA METRIK DENGAN TIPOGRAFI TEBAL & BESAR -->
         <section class="metrics-grid">
           <div class="metric-card">
             <div class="title">Jarak Terukur (d)</div>
@@ -682,11 +750,11 @@
           </div>
         </section>
 
-        <!-- PANEL GRAFIK LIVE -->
+        <!-- PANEL GRAFIK LIVE TANPA GRID LINE (STANDAR LAPORAN ILMIAH) -->
         <section class="chart-container">
           <div class="chart-header">
             <h3>Respons Gelombang Ultrasonik</h3>
-            <span>Jendela data geser (30 sampel terakhir)</span>
+            <span>Grafik Standar Bersih (Hanya Sumbu Utama)</span>
           </div>
           <div class="chart-canvas-wrapper">
             <canvas id="realtimeChart"></canvas>
@@ -870,6 +938,7 @@
         theoryView.classList.add('hidden-view');
         tabDashboard.classList.add('active');
         tabTheory.classList.remove('active');
+        setTimeout(() => chartInstance?.resize(), 50);
       } else {
         dashboardView.classList.add('hidden-view');
         theoryView.classList.remove('hidden-view');
@@ -878,6 +947,20 @@
       }
     }
 
+    // Toggle Collapsible Sidebar
+    function toggleSidebar() {
+      const sidebar = document.getElementById('app-sidebar');
+      sidebar.classList.toggle('collapsed');
+      
+      // Berikan jeda transisi 320ms agar Chart.js menyesuaikan ukuran kontainer baru
+      setTimeout(() => {
+        if (chartInstance) {
+          chartInstance.resize();
+        }
+      }, 320);
+    }
+
+    // INISIALISASI GRAFIK REAL-TIME DENGAN ATURAN STANDAR KAMPUS (TANPA GRID LINE)
     function initChart() {
       const ctx = document.getElementById('realtimeChart').getContext('2d');
       chartInstance = new Chart(ctx, {
@@ -891,8 +974,8 @@
             backgroundColor: 'rgba(37, 99, 235, 0.04)',
             fill: true,
             tension: 0.15,
-            borderWidth: 1.8,
-            pointRadius: 1.5,
+            borderWidth: 2,
+            pointRadius: 2,
             pointBackgroundColor: '#2563eb'
           }]
         },
@@ -901,12 +984,50 @@
           maintainAspectRatio: false,
           scales: {
             x: { 
-              grid: { color: '#f1f5f9' },
-              ticks: { color: '#64748b', font: { size: 10 } }
+              // Hilangkan semua garis grid latar belakang (horizontal & vertikal)
+              grid: { 
+                display: false,
+                drawBorder: true
+              },
+              // Pertahankan hanya garis sumbu utama (X-axis)
+              border: {
+                display: true,
+                color: '#94a3b8',
+                width: 1.5
+              },
+              ticks: { 
+                color: '#475569', 
+                font: { size: 10, weight: '500' } 
+              },
+              title: {
+                display: true,
+                text: 'Sampel Waktu',
+                color: '#64748b',
+                font: { size: 11, weight: '600' }
+              }
             },
             y: { 
-              grid: { color: '#f1f5f9' },
-              ticks: { color: '#64748b', font: { size: 10 } },
+              // Hilangkan semua garis grid latar belakang (horizontal & vertikal)
+              grid: { 
+                display: false,
+                drawBorder: true
+              },
+              // Pertahankan hanya garis sumbu utama (Y-axis)
+              border: {
+                display: true,
+                color: '#94a3b8',
+                width: 1.5
+              },
+              ticks: { 
+                color: '#475569', 
+                font: { size: 10, weight: '500' } 
+              },
+              title: {
+                display: true,
+                text: 'Jarak (cm)',
+                color: '#64748b',
+                font: { size: 11, weight: '600' }
+              },
               beginAtZero: true 
             }
           },
@@ -1099,6 +1220,7 @@
       loadModules();
       initChart();
 
+      document.getElementById('btn-toggle-sidebar').onclick = toggleSidebar;
       document.getElementById('btn-connect-bt').onclick = connectBluetoothNode;
       document.getElementById('btn-cancel-bt').onclick = cancelBluetoothScan;
       document.getElementById('btn-start').onclick = startRecording;

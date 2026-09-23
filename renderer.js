@@ -11,6 +11,7 @@ async function loadLabModules() {
     const data = await response.json();
     
     const container = document.getElementById('module-list-container');
+    if (!container) return;
     container.innerHTML = '';
 
     data.modules.forEach((module, index) => {
@@ -35,13 +36,17 @@ function selectModule(module, element) {
   document.querySelectorAll('.module-item').forEach(el => el.classList.remove('active'));
   if (element) element.classList.add('active');
 
-  document.getElementById('active-module-title').innerText = module.title;
-  document.getElementById('active-module-subtitle').innerText = module.subtitle;
+  const titleEl = document.getElementById('active-module-title');
+  const subtitleEl = document.getElementById('active-module-subtitle');
+  if (titleEl) titleEl.innerText = module.title;
+  if (subtitleEl) subtitleEl.innerText = module.subtitle;
 }
 
-// 3. Inisialisasi Chart.js
+// 3. Inisialisasi Chart.js (Standar Ilmiah: Tanpa Gridline)
 function initChart() {
-  const ctx = document.getElementById('realtimeChart').getContext('2d');
+  const canvas = document.getElementById('realtimeChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
   chartInstance = new Chart(ctx, {
     type: 'line',
     data: {
@@ -50,23 +55,51 @@ function initChart() {
         label: 'Jarak Terukur (cm)',
         data: [],
         borderColor: '#2563eb',
-        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+        backgroundColor: 'rgba(37, 99, 235, 0.04)',
         fill: true,
-        tension: 0.3
+        tension: 0.15,
+        borderWidth: 2,
+        pointRadius: 2,
+        pointBackgroundColor: '#2563eb'
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        x: { title: { display: true, text: 'Waktu / Sampel' } },
-        y: { title: { display: true, text: 'Jarak (cm)' }, min: 0, max: 100 }
+        x: { 
+          grid: { display: false, drawBorder: true },
+          border: { display: true, color: '#94a3b8', width: 1.5 },
+          ticks: { color: '#475569', font: { size: 10, weight: '500' } },
+          title: { display: true, text: 'Waktu / Sampel', color: '#64748b', font: { size: 11, weight: '600' } }
+        },
+        y: { 
+          grid: { display: false, drawBorder: true },
+          border: { display: true, color: '#94a3b8', width: 1.5 },
+          ticks: { color: '#475569', font: { size: 10, weight: '500' } },
+          title: { display: true, text: 'Jarak (cm)', color: '#64748b', font: { size: 11, weight: '600' } },
+          min: 0, 
+          max: 100 
+        }
       }
     }
   });
 }
 
-// 4. Mock Data Generator (Simulasi Data Sensor)
+// 4. Toggle Collapsible Sidebar
+function toggleSidebar() {
+  const sidebar = document.getElementById('app-sidebar');
+  if (sidebar) {
+    sidebar.classList.toggle('collapsed');
+    setTimeout(() => {
+      if (chartInstance) {
+        chartInstance.resize();
+      }
+    }, 320);
+  }
+}
+
+// 5. Mock Data Generator (Simulasi Data Sensor)
 function toggleSimulation() {
   const btn = document.getElementById('btn-toggle-sim');
   const status = document.getElementById('mode-status');
@@ -74,10 +107,14 @@ function toggleSimulation() {
   if (!isSimulating) {
     // Mulai Simulasi
     isSimulating = true;
-    btn.innerText = 'Hentikan Simulasi';
-    btn.className = 'btn btn-primary';
-    status.innerText = 'Mode Simulasi Aktif';
-    status.classList.add('simulating');
+    if (btn) {
+      btn.innerText = 'Hentikan Simulasi';
+      btn.className = 'btn btn-primary';
+    }
+    if (status) {
+      status.innerText = 'Mode Simulasi Aktif';
+      status.classList.add('simulating');
+    }
 
     simulationInterval = setInterval(() => {
       stepCounter += 0.2;
@@ -86,37 +123,49 @@ function toggleSimulation() {
       const simulatedTime = (simulatedDistance / 0.0343).toFixed(2); // V_udara = 343 m/s
 
       // Update Metrik Kartu UI
-      document.getElementById('val-distance').innerHTML = `${simulatedDistance} <span class="unit">cm</span>`;
-      document.getElementById('val-time').innerHTML = `${simulatedTime} <span class="unit">ms</span>`;
+      const valDistEl = document.getElementById('val-distance');
+      const valTimeEl = document.getElementById('val-time');
+      if (valDistEl) valDistEl.innerHTML = `${simulatedDistance} <span class="unit">cm</span>`;
+      if (valTimeEl) valTimeEl.innerHTML = `${simulatedTime} <span class="unit">µs</span>`;
 
       // Update Grafik Live
-      const timeLabel = new Date().toLocaleTimeString();
-      chartInstance.data.labels.push(timeLabel);
-      chartInstance.data.datasets[0].data.push(simulatedDistance);
+      if (chartInstance) {
+        const timeLabel = new Date().toLocaleTimeString();
+        chartInstance.data.labels.push(timeLabel);
+        chartInstance.data.datasets[0].data.push(simulatedDistance);
 
-      // Batasi tampilan maksimal 20 data pada grafik agar tidak berat
-      if (chartInstance.data.labels.length > 20) {
-        chartInstance.data.labels.shift();
-        chartInstance.data.datasets[0].data.shift();
+        // Batasi tampilan maksimal 30 data pada grafik
+        if (chartInstance.data.labels.length > 30) {
+          chartInstance.data.labels.shift();
+          chartInstance.data.datasets[0].data.shift();
+        }
+
+        chartInstance.update();
       }
-
-      chartInstance.update();
-    }, 500); // Update setiap 500ms
+    }, 500);
   } else {
     // Hentikan Simulasi
     isSimulating = false;
     clearInterval(simulationInterval);
-    btn.innerText = 'Mulai Simulasi';
-    btn.className = 'btn btn-warning';
-    status.innerText = 'Mode Standby';
-    status.classList.remove('simulating');
+    if (btn) {
+      btn.innerText = 'Mulai Simulasi';
+      btn.className = 'btn btn-warning';
+    }
+    if (status) {
+      status.innerText = 'Mode Standby';
+      status.classList.remove('simulating');
+    }
   }
 }
 
-// Inisialisasi saat aplikasi pertama dibuka
+// Inisialisasi saat DOM siap
 window.addEventListener('DOMContentLoaded', () => {
   loadLabModules();
   initChart();
 
-  document.getElementById('btn-toggle-sim').addEventListener('click', toggleSimulation);
+  const btnSim = document.getElementById('btn-toggle-sim');
+  if (btnSim) btnSim.addEventListener('click', toggleSimulation);
+
+  const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
+  if (btnToggleSidebar) btnToggleSidebar.addEventListener('click', toggleSidebar);
 });
